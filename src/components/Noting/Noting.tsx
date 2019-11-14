@@ -1,18 +1,38 @@
-import React from "react";
+import React, {
+  InputHTMLAttributes,
+  DetailedHTMLProps,
+  Component
+} from "react";
 import classes from "./Noting.module.css";
+import { INoteArray } from "../../App";
 
-const Noting = (props: any) => (
-  <div className={classes.Noting}>
-    <form>
-      <input placeholder="Header:" type="text">
-        {props.headername}
-      </input>
-      <br />
-      <input placeholder="Enter notes here" type="text">
-        {props.notestext}
-      </input>
-    </form>
-  </div>
-);
+interface INotingProps {
+  // notes: INoteArray[];
+  textchanged: any;
+}
+
+// let textInput = React.createRef();
+
+//  function handleClick() {
+//  textInput.current.focus
+// }
+
+class Noting extends Component<INotingProps> {
+  render() {
+    return (
+      <div className={classes.Noting}>
+        <form>
+          <input placeholder="Header:" type="text"></input>
+          <br />
+          <textarea
+            className={classes.textarea}
+            onChange={this.props.textchanged}
+          ></textarea>
+        </form>
+      </div>
+    );
+  }
+}
+//defaultValue={props.notes.find(x => x.value)}
 
 export default Noting;

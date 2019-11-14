@@ -1,8 +1,14 @@
 import React from "react";
+import classes from "./NotesToolBar.module.css";
 
-const NotesToolBar = (props: any) => (
-  <div>
-    <button>Add</button>
+interface INotesToolBarProps {
+  onAdd(): void;
+  //ingredientRemoved(type: string): void
+}
+
+const NotesToolBar = (props: INotesToolBarProps) => (
+  <div className={classes.NotesToolBar}>
+    <button onClick={props.onAdd}>Add</button>
     <button>Clear</button>
     <button>Edit</button>
     <button>Favourite</button>
