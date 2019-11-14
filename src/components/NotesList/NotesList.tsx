@@ -5,6 +5,7 @@ import Notes from "../../containers/Notes/Notes";
 
 interface INotesListProps {
   notes: INoteArray[];
+  //selectnotes()
 }
 
 const NotesList = (props: INotesListProps) => {

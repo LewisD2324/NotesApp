@@ -9,6 +9,7 @@ import { INoteArray } from "../../App";
 interface INotingProps {
   // notes: INoteArray[];
   textchanged: any;
+  currentnote: string;
 }
 
 // let textInput = React.createRef();
@@ -27,6 +28,7 @@ class Noting extends Component<INotingProps> {
           <textarea
             className={classes.textarea}
             onChange={this.props.textchanged}
+            value={this.props.currentnote}
           ></textarea>
         </form>
       </div>

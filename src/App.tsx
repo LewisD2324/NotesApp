@@ -48,6 +48,12 @@ class App extends Component {
     this.setState({ currentnote: updatednote });
   };
 
+  clearNote = () => {
+    let currentnotestate = this.state.currentnote;
+    currentnotestate = "";
+    this.setState({ currentnote: currentnotestate });
+  };
+
   deleteNotes = (note: string) => {
     // this.setState();
   };
@@ -56,10 +62,12 @@ class App extends Component {
     // this.setState();
   };
 
+  selectNotes = () => {};
+
   addNotes = () => {
     const addednote = {
       id: this.state.notes.length + 1,
-      heading: "",
+      heading: "Notes: " + (this.state.notes.length + 1),
       value: this.state.currentnote
     };
     const newnotelist = this.state.notes.concat([addednote]);
@@ -76,8 +84,11 @@ class App extends Component {
           <Fragment>
             <SearchBar />
             <NotesList notes={this.state.notes} />
-            <NotesToolBar onAdd={this.addNotes} />
-            <Noting textchanged={this.saveNotes} />
+            <NotesToolBar onAdd={this.addNotes} onClear={this.clearNote} />
+            <Noting
+              textchanged={this.saveNotes}
+              currentnote={this.state.currentnote}
+            />
           </Fragment>
         </section>
       </div>
