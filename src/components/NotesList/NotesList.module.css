@@ -6,3 +6,31 @@
   box-sizing: border-box;
   height: 800px;
 }
+
+.NotesTable {
+  border: solid 1px #ddeeee;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font: normal 13px Arial, sans-serif;
+}
+.NotesTable thead th {
+  background-color: #ddefef;
+  border: solid 1px #ddeeee;
+  color: #336b6b;
+  padding: 10px;
+  text-align: left;
+  text-shadow: 1px 1px 1px #fff;
+}
+.NotesTable tbody td {
+  border: solid 1px #ddeeee;
+  color: #333;
+  padding: 10px;
+  text-shadow: 1px 1px 1px #fff;
+}
+.NotesTable tbody tr:hover {
+  background-color: #cce7e7;
+}
+.NotesTable tbody td {
+  border-left: none;
+  border-right: none;
+}

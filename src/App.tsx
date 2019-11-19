@@ -5,12 +5,28 @@ import Notes from "./containers/Notes/Notes";
 import NotesList from "./components/NotesList/NotesList";
 import Noting from "./components/Noting/Noting";
 import NotesToolBar from "./components/NotesToolBar/NotesToolBar";
-import NotesDisplay from "./containers/NotesDisplay/NotesDisplay";
+import NotesLogo from "./assets/images/notes-icon-png-14.jpg";
+import { connect } from "react-redux";
+import * as actioncreators from "./store/actions/actions";
+import { clearnotes } from "./store/actions/actions";
+import { AnyMxRecord } from "dns";
 
 export interface INoteArray {
   heading: string;
   value: string;
   id: number;
+}
+
+export interface AppProps {
+  notes: INoteArray[];
+  currentnote: string;
+
+  currentnotenew: ICurrentNoteArray[];
+
+  clearnotes: any;
+
+  savenotes: any;
+  addnotes: any;
 }
 
 export interface ICurrentNoteArray {
@@ -25,6 +41,7 @@ export interface INotesState {
   currentnotenew: ICurrentNoteArray[];
 }
 
+//store notes in firebase
 const notesarray = [
   { id: 0, heading: "test", value: "testing" },
   { id: 1, heading: "test2", value: "testing2" }
@@ -34,7 +51,7 @@ const currentnotesarray = [
   { heading: "", value: "" },
   { heading: "", value: "" }
 ];
-class App extends Component {
+class App extends Component<AppProps> {
   state: INotesState = {
     currentnote: "",
     currentnotenew: currentnotesarray,
@@ -42,16 +59,9 @@ class App extends Component {
   };
 
   saveNotes = (changed: React.ChangeEvent<HTMLInputElement>) => {
-    // this.setState();
     const updatednote = changed.target.value;
 
-    this.setState({ currentnote: updatednote });
-  };
-
-  clearNote = () => {
-    let currentnotestate = this.state.currentnote;
-    currentnotestate = "";
-    this.setState({ currentnote: currentnotestate });
+    this.props.savenotes(updatednote);
   };
 
   deleteNotes = (note: string) => {
@@ -65,13 +75,10 @@ class App extends Component {
   selectNotes = () => {};
 
   addNotes = () => {
-    const addednote = {
-      id: this.state.notes.length + 1,
-      heading: "Notes: " + (this.state.notes.length + 1),
-      value: this.state.currentnote
-    };
-    const newnotelist = this.state.notes.concat([addednote]);
-    this.setState({ notes: newnotelist });
+    if (this.props.currentnote != "") {
+      this.props.addnotes();
+    }
+    console.log(this.props.notes);
   };
 
   render() {
@@ -79,15 +86,22 @@ class App extends Component {
       <div className="App">
         <header>
           <strong>Welcome to you're Notes App!</strong>
+          <img
+            src={NotesLogo}
+            style={{ maxHeight: "40px", minWidth: "auto" }}
+          ></img>
         </header>
         <section>
           <Fragment>
             <SearchBar />
-            <NotesList notes={this.state.notes} />
-            <NotesToolBar onAdd={this.addNotes} onClear={this.clearNote} />
+            <NotesList notes={this.props.notes} />
+            <NotesToolBar
+              onAdd={this.addNotes}
+              onClear={this.props.clearnotes}
+            />
             <Noting
               textchanged={this.saveNotes}
-              currentnote={this.state.currentnote}
+              currentnote={this.props.currentnote}
             />
           </Fragment>
         </section>
@@ -96,4 +110,21 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state: INotesState) => {
+  return {
+    notes: state.notes,
+    currentnote: state.currentnote,
+    currentnotenew: state.currentnotenew
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    clearnotes: () => dispatch({ type: actioncreators.CLEAR_NOTES }),
+    savenotes: (updatednote: string) =>
+      dispatch({ type: actioncreators.SAVE_NOTES, updatednote }),
+    addnotes: () => dispatch({ type: actioncreators.ADD_NOTES })
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
