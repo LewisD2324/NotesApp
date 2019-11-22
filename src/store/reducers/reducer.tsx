@@ -1,18 +1,13 @@
 import { INotesState } from "../../App";
-import { Action } from "redux";
 import * as actionTypes from "../actions/actions";
 
 const notesarray = [{ id: 0, heading: "test", value: "testing" }];
 
-const currentnotesarray = [
-  { heading: "", value: "" },
-  { heading: "", value: "" }
-];
+const currentnotesarray = [{ heading: "", value: "" }];
 
 const initialState: INotesState = {
   notes: notesarray,
-  currentnote: "",
-  currentnotenew: currentnotesarray
+  currentnote: currentnotesarray
 };
 
 const reducer = (
@@ -23,46 +18,62 @@ const reducer = (
   switch (action.type) {
     case actionTypes.CLEAR_NOTES:
       console.log({ state, action });
-      let currentnotestate = Object.assign({}, state.currentnote);
-      currentnotestate = "";
-      return {
-        ...state,
-        currentnote: currentnotestate
-      };
-    case actionTypes.SAVE_NOTES:
+      const newclearnotesState = { ...state };
+      newclearnotesState.currentnote = [
+        {
+          value: "",
+          heading: ""
+        }
+      ];
+      return newclearnotesState;
+    case actionTypes.SAVE_TEXT_NOTES:
       console.log({ state, action });
-      return {
-        ...state,
-        currentnote: action.updatednote
-      };
+      const newupdatedtextState = { ...state };
+      console.log(newupdatedtextState);
+      newupdatedtextState.currentnote = [
+        {
+          value: action.updatednote,
+          heading: newupdatedtextState.currentnote[0].heading
+        }
+      ];
+      return newupdatedtextState;
+    case actionTypes.SAVE_HEADER_NOTES:
+      console.log({ state, action });
+      const newupdatedheaderState = { ...state };
+      newupdatedheaderState.currentnote = [
+        {
+          value: newupdatedheaderState.currentnote[0].value,
+          heading: action.updatednote
+        }
+      ];
+      return newupdatedheaderState;
     case actionTypes.ADD_NOTES:
       console.log({ state, action });
       const addednote = {
         id: state.notes.length + 1,
-        heading: "Notes: " + (state.notes.length + 1),
-        value: state.currentnote
+        heading: state.currentnote[0].heading,
+        value: state.currentnote[0].value
       };
       const newnotelist = state.notes.concat([addednote]);
       return {
         ...state,
         notes: newnotelist
       };
+    case actionTypes.SELECT_NOTES:
+      console.log({ state, action });
+      const selectednote = state.notes.filter(x => x.id == action.id);
+      const newState = { ...state };
+      newState.currentnote = [
+        {
+          value: selectednote[0].value,
+          heading: selectednote[0].heading
+        }
+      ];
+
+      return newState;
     default:
       return state;
   }
 };
-
-// addNotes = () => {
-//   if (this.props.currentnote != "") {
-//     const addednote = {
-//       id: this.props.notes.length + 1,
-//       heading: "Notes: " + (this.props.notes.length + 1),
-//       value: this.props.currentnote
-//     };
-//     const newnotelist = this.props.notes.concat([addednote]);
-//     this.props.addnotes(newnotelist);
-//   }
-//   console.log(this.props.notes);
-// };
 
 export default reducer;

@@ -13,6 +13,7 @@ import { connect } from "react-redux";
 interface INotesListProps {
   notes: INoteArray[];
   //selectnotes()
+  selectnotes: any;
 }
 
 const NotesList = (props: INotesListProps) => {
@@ -24,7 +25,7 @@ const NotesList = (props: INotesListProps) => {
         </tr>
         <tbody>
           {props.notes.map(note => (
-            <tr>
+            <tr onClick={() => props.selectnotes(note.id)}>
               <td>{note.heading}</td>
               <td>{note.value}</td>
             </tr>
@@ -35,13 +36,4 @@ const NotesList = (props: INotesListProps) => {
   );
 };
 
- export default NotesList;
-
-
-// const mapStateToProps = (state: INotesState) => {
-//   return {
-//     notes: state.notes
-//   };
-// };
-
-// export default connect(mapStateToProps)(NotesList);
+export default NotesList;

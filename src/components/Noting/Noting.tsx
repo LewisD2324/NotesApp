@@ -1,15 +1,14 @@
-import React, {
-  InputHTMLAttributes,
-  DetailedHTMLProps,
-  Component
-} from "react";
+import React, { Component } from "react";
 import classes from "./Noting.module.css";
-import { INoteArray } from "../../App";
+import { ICurrentNoteArray } from "../../App";
 
 interface INotingProps {
   // notes: INoteArray[];
   textchanged: any;
-  currentnote: string;
+  //need to fix these
+  headervalue: any;
+  textvalue: any;
+  headerchanged: any;
 }
 
 // let textInput = React.createRef();
@@ -23,12 +22,17 @@ class Noting extends Component<INotingProps> {
     return (
       <div className={classes.Noting}>
         <form>
-          <input placeholder="Header:" type="text"></input>
+          <input
+            placeholder="Header:"
+            type="text"
+            onChange={this.props.headerchanged}
+            value={this.props.headervalue}
+          ></input>
           <br />
           <textarea
             className={classes.textarea}
             onChange={this.props.textchanged}
-            value={this.props.currentnote}
+            value={this.props.textvalue}
           ></textarea>
         </form>
       </div>
