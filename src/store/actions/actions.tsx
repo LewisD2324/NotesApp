@@ -1,40 +1,49 @@
-//action types
-export const CLEAR_NOTES = "CLEAR_NOTES";
-export const SAVE_TEXT_NOTES = "SAVE_TEXT_NOTES";
-export const SAVE_HEADER_NOTES = "SAVE_HEADER_NOTES";
-export const ADD_NOTES = "ADD_NOTES";
-export const SELECT_NOTES = "SELECT_NOTES";
+import { INoteArray } from "../../App";
+import {
+  SAVE_TEXT_NOTES,
+  SAVE_HEADER_NOTES,
+  SELECT_NOTES,
+  ADD_NOTES,
+  FETCH_NOTES,
+  IActionClearNotes,
+  CLEAR_NOTES,
+  IActionSaveTextNotes,
+  IActionSaveHeaderNotes,
+  IActionSelectNotes,
+  IActionFetchNotes
+} from "./types";
 
 //action creators
-export const clearnotes = () => {
+export function clearnotes(): IActionClearNotes {
   return {
     type: CLEAR_NOTES
   };
-};
+}
 
-export const savetextNotes = (updatednote: string) => {
+export function savetextNotes(updatednote: string): IActionSaveTextNotes {
   return {
     type: SAVE_TEXT_NOTES,
-    payload: updatednote
+    updatednote
   };
-};
+}
 
-export const saveheaderNotes = (updatednote: string) => {
+export function saveheaderNotes(updatednote: string): IActionSaveHeaderNotes {
   return {
     type: SAVE_HEADER_NOTES,
-    payload: updatednote
+    updatednote
   };
-};
+}
 
-export const selectnotes = (id: number) => {
+export function selectnotes(id: number): IActionSelectNotes {
   return {
     type: SELECT_NOTES,
-    payload: id
+    id
   };
-};
+}
 
-export const addnotes = () => {
+export function fetchnotes(fetchedNotes: INoteArray[]): IActionFetchNotes {
   return {
-    type: ADD_NOTES
+    type: FETCH_NOTES,
+    fetchedNotes
   };
-};
+}

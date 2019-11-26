@@ -6,13 +6,13 @@ import NotesDisplay from "./containers/NotesDisplay/NotesDisplay";
 
 export interface INoteArray {
   heading: string;
-  value: string;
+  text: string;
   id: number;
 }
 
 export interface ICurrentNoteArray {
   heading: string;
-  value: string;
+  text: string;
 }
 
 export interface INotesState {
@@ -28,8 +28,6 @@ class App extends Component {
     // this.setState();
   };
 
-  selectNotes = () => {};
-
   render() {
     return (
       <div className="App">
@@ -41,10 +39,8 @@ class App extends Component {
           ></img>
         </header>
         <section>
-          <Fragment>
-            <NotesDisplay />
-            <Notes />
-          </Fragment>
+          <NotesDisplay />
+          <Notes />
         </section>
       </div>
     );

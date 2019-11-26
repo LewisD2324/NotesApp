@@ -1,12 +1,11 @@
 import React, { Fragment, Component } from "react";
-import SearchBar from "../../components/SearchBar/SearchBar";
 import NotesToolBar from "../../components/NotesToolBar/NotesToolBar";
-import classes from "./Notes.module.css";
 import Noting from "../../components/Noting/Noting";
-import * as actioncreators from "../../store/actions/actions";
+import * as actiontypes from "../../store/actions/types";
 import { INotesState, ICurrentNoteArray, INoteArray } from "../../App";
 import { connect } from "react-redux";
-
+import axios from "../../axios.notes";
+import { getNotes } from "../NotesDisplay/NotesDisplay";
 export interface INotesProps {
   notes: INoteArray[];
 
@@ -17,15 +16,41 @@ export interface INotesProps {
   savetextNotes: any;
 
   saveheaderNotes: any;
-  addnotes: any;
+  fetchnotes: any;
 }
 class Notes extends Component<INotesProps> {
+  componentDidUpdate() {
+    const fetchedNotes: INoteArray[] = [];
+    axios
+      .get("/Notes.json")
+      .then(res => {
+        for (let key in res.data) {
+          fetchedNotes.push({
+            ...res.data[key]
+          });
+        }
+        console.log(fetchedNotes);
+        this.props.fetchnotes(fetchedNotes);
+      })
+      .catch((err: Error) => {
+        //Create error screen for this instead
+        console.log("Error - Cannot Load Notes: ", err);
+      });
+  }
   addNotes = () => {
+    //display alert if notes are empty
     if (
-      this.props.currentnote[0].value != "" &&
+      this.props.currentnote[0].text != "" &&
       this.props.currentnote[0].heading != ""
     ) {
-      this.props.addnotes();
+      axios
+        .post("/Notes.json", this.props.currentnote[0])
+        .then(res => {
+          console.log("notes added");
+        })
+        .catch((err: Error) => {
+          console.log("Error adding note: ", err);
+        });
     }
   };
 
@@ -42,13 +67,13 @@ class Notes extends Component<INotesProps> {
   };
   render() {
     return (
-      <div className={classes.Notes}>
+      <div>
         <Fragment>
           <NotesToolBar onAdd={this.addNotes} onClear={this.props.clearnotes} />
           <Noting
             textchanged={this.savetext}
             headerchanged={this.saveheader}
-            textvalue={this.props.currentnote[0].value}
+            textvalue={this.props.currentnote[0].text}
             headervalue={this.props.currentnote[0].heading}
           />
         </Fragment>
@@ -59,12 +84,13 @@ class Notes extends Component<INotesProps> {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    clearnotes: () => dispatch({ type: actioncreators.CLEAR_NOTES }),
+    clearnotes: () => dispatch({ type: actiontypes.CLEAR_NOTES }),
     savetextNotes: (updatednote: string) =>
-      dispatch({ type: actioncreators.SAVE_TEXT_NOTES, updatednote }),
+      dispatch({ type: actiontypes.SAVE_TEXT_NOTES, updatednote }),
     saveheaderNotes: (updatednote: string) =>
-      dispatch({ type: actioncreators.SAVE_HEADER_NOTES, updatednote }),
-    addnotes: () => dispatch({ type: actioncreators.ADD_NOTES })
+      dispatch({ type: actiontypes.SAVE_HEADER_NOTES, updatednote }),
+    fetchnotes: (fetchedNotes: INoteArray[]) =>
+      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes })
   };
 };
 

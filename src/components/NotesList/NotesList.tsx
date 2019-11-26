@@ -27,7 +27,7 @@ const NotesList = (props: INotesListProps) => {
           {props.notes.map(note => (
             <tr onClick={() => props.selectnotes(note.id)}>
               <td>{note.heading}</td>
-              <td>{note.value}</td>
+              <td>{note.text}</td>
             </tr>
           ))}
         </tbody>

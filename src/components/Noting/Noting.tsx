@@ -23,14 +23,14 @@ class Noting extends Component<INotingProps> {
       <div className={classes.Noting}>
         <form>
           <input
-            placeholder="Header:"
+            placeholder="Header: "
             type="text"
             onChange={this.props.headerchanged}
             value={this.props.headervalue}
           ></input>
           <br />
           <textarea
-            className={classes.textarea}
+            placeholder="Write your notes here: "
             onChange={this.props.textchanged}
             value={this.props.textvalue}
           ></textarea>

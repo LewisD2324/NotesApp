@@ -1,9 +1,10 @@
 import { INotesState } from "../../App";
-import * as actionTypes from "../actions/actions";
+import * as actionTypes from "../actions/types";
+import { NoteActions } from "../actions/types";
 
-const notesarray = [{ id: 0, heading: "test", value: "testing" }];
+const notesarray = [{ id: 0, heading: "test", text: "testing" }];
 
-const currentnotesarray = [{ heading: "", value: "" }];
+const currentnotesarray = [{ heading: "", text: "" }];
 
 const initialState: INotesState = {
   notes: notesarray,
@@ -12,7 +13,7 @@ const initialState: INotesState = {
 
 const reducer = (
   state: INotesState = initialState,
-  action: any
+  action: NoteActions
 ): INotesState => {
   console.log({ state, action });
   switch (action.type) {
@@ -21,7 +22,7 @@ const reducer = (
       const newclearnotesState = { ...state };
       newclearnotesState.currentnote = [
         {
-          value: "",
+          text: "",
           heading: ""
         }
       ];
@@ -32,7 +33,7 @@ const reducer = (
       console.log(newupdatedtextState);
       newupdatedtextState.currentnote = [
         {
-          value: action.updatednote,
+          text: action.updatednote,
           heading: newupdatedtextState.currentnote[0].heading
         }
       ];
@@ -42,35 +43,30 @@ const reducer = (
       const newupdatedheaderState = { ...state };
       newupdatedheaderState.currentnote = [
         {
-          value: newupdatedheaderState.currentnote[0].value,
+          text: newupdatedheaderState.currentnote[0].text,
           heading: action.updatednote
         }
       ];
       return newupdatedheaderState;
-    case actionTypes.ADD_NOTES:
-      console.log({ state, action });
-      const addednote = {
-        id: state.notes.length + 1,
-        heading: state.currentnote[0].heading,
-        value: state.currentnote[0].value
-      };
-      const newnotelist = state.notes.concat([addednote]);
-      return {
-        ...state,
-        notes: newnotelist
-      };
     case actionTypes.SELECT_NOTES:
       console.log({ state, action });
       const selectednote = state.notes.filter(x => x.id == action.id);
       const newState = { ...state };
       newState.currentnote = [
         {
-          value: selectednote[0].value,
+          text: selectednote[0].text,
           heading: selectednote[0].heading
         }
       ];
 
       return newState;
+
+    case actionTypes.FETCH_NOTES:
+      console.log({ state, action });
+      return {
+        ...state,
+        notes: action.fetchedNotes
+      };
     default:
       return state;
   }
