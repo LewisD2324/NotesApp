@@ -5,7 +5,8 @@
   border: 2px solid #eee;
   box-sizing: border-box;
   height: 800px;
-  left: 1300px;
+  left: 400px;
+  width: 300px;
 }
 
 .NotesTable {
@@ -15,9 +16,9 @@
   font: normal 13px Arial, sans-serif;
 }
 .NotesTable thead th {
-  background-color: #ddefef;
+  background-color: #21327a;
   border: solid 1px #ddeeee;
-  color: #336b6b;
+  color: #a3dbdb;
   padding: 10px;
   text-align: left;
   text-shadow: 1px 1px 1px #fff;

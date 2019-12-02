@@ -1,4 +1,4 @@
-import { INoteArray } from "../../App";
+import { INoteArray, ICurrentNoteArray } from "../../App";
 import {
   SAVE_TEXT_NOTES,
   SAVE_HEADER_NOTES,
@@ -10,8 +10,13 @@ import {
   IActionSaveTextNotes,
   IActionSaveHeaderNotes,
   IActionSelectNotes,
-  IActionFetchNotes
+  IActionFetchNotes,
+  IActionAddNotes
 } from "./types";
+import axios from "../../axios.notes";
+import { ThunkDispatch, ThunkAction } from "redux-thunk";
+import { AnyAction } from "redux";
+import { getNotes } from "../../containers/NotesDisplay/NotesDisplay";
 
 //action creators
 export function clearnotes(): IActionClearNotes {
@@ -41,9 +46,58 @@ export function selectnotes(id: number): IActionSelectNotes {
   };
 }
 
-export function fetchnotes(fetchedNotes: INoteArray[]): IActionFetchNotes {
+export function fetchednotes(
+  fetchedNotes: INoteArray[],
+  id: number
+): IActionFetchNotes {
   return {
     type: FETCH_NOTES,
-    fetchedNotes
+    fetchedNotes,
+    id
+  };
+}
+
+export function getnotes() {
+  return function(dispatch: any) {
+    const fetchedNotes: INoteArray[] = [];
+    let id = 0;
+    axios
+      .get("/Notes.json")
+      .then(res => {
+        for (let key in res.data) {
+          fetchedNotes.push({
+            ...res.data[key]
+          });
+        }
+        for (var i = 0; i < fetchedNotes.length + 1; i++) {
+          id = Number(i) + 1;
+        }
+        dispatch(fetchednotes(fetchedNotes, id));
+      })
+      .catch((err: Error) => {
+        //Create Error action reponse for this
+        console.log("Error - Cannot Load Notes: ", err);
+      });
+  };
+}
+
+export function addnotes(
+  addednote: ICurrentNoteArray[]
+): ThunkAction<Promise<void>, {}, {}, AnyAction> {
+  return async (dispatch: ThunkDispatch<{}, {}, AnyAction>): Promise<void> => {
+    return await axios
+      .post("/Notes.json", addednote)
+      .then(res => {
+        console.log("notes added: ", res.data);
+        dispatch(getnotes());
+
+        dispatch(clearnotes());
+      })
+      .catch((err: Error) => {
+        console.log("Error adding note: ", err);
+      });
+    // setTimeout(() => {
+    //   dispatch(clearnotes);
+    // }, 1000);
   };
 }

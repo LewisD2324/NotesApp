@@ -7,6 +7,8 @@ import EditIcon from "@material-ui/icons/Edit";
 interface INotesToolBarProps {
   onAdd(): void;
   onClear(): void;
+
+  onSave(): void;
 }
 
 const NotesToolBar = (props: INotesToolBarProps) => (
@@ -22,10 +24,12 @@ const NotesToolBar = (props: INotesToolBarProps) => (
     <Fab color="secondary" aria-label="edit" className={classes.fab}>
       <EditIcon />
     </Fab>
+    <Button variant="contained" onClick={props.onSave}>
+      Save
+    </Button>
     <Button variant="contained" color="secondary" onClick={props.onClear}>
       Clear
     </Button>
-    <Button variant="contained">Favourite</Button>
   </div>
 );
 

@@ -5,30 +5,20 @@ import { INoteArray, INotesState, ICurrentNoteArray } from "../../App";
 import { connect } from "react-redux";
 import * as actiontypes from "../../store/actions/types";
 import axios from "../../axios.notes";
+import * as _ from "lodash";
+import { getnotes } from "../../store/actions/actions";
+
 export interface INotesDisplayProps {
   notes: INoteArray[];
   selectnotes: any;
   fetchnotes: any;
+  getnotes: any;
+
   currentnote: ICurrentNoteArray[];
 }
 
 export function getNotes(props: INotesDisplayProps) {
-  const fetchedNotes: INoteArray[] = [];
-  axios
-    .get("/Notes.json")
-    .then(res => {
-      for (let key in res.data) {
-        fetchedNotes.push({
-          ...res.data[key]
-        });
-      }
-      console.log(fetchedNotes);
-      props.fetchnotes(fetchedNotes);
-    })
-    .catch((err: Error) => {
-      //Create error screen for this instead
-      console.log("Error - Cannot Load Notes: ", err);
-    });
+  props.getnotes();
 }
 
 class NotesDisplay extends Component<INotesDisplayProps> {
@@ -37,6 +27,31 @@ class NotesDisplay extends Component<INotesDisplayProps> {
 
     console.log(this.props.currentnote);
   };
+
+  // shouldComponentUpdate(nextProps: INotesDisplayProps) {
+  //   return nextProps.notes !== this.props.notes;
+  // }
+
+  // componentDidUpdate(prevProps: INotesDisplayProps) {
+  //   if (prevProps.notes.length !== this.props.notes.length) {
+  //     //getNotes(this.props);
+  //     console.log("getting notes not equal length");
+  //     return;
+  //   }
+
+  //   _.orderBy(prevProps.notes, ["id"]).forEach(note => {
+  //     _.orderBy(this.props.notes, ["id"]).forEach(n => {
+  //       if (!_.isEqual(note, n)) {
+  //         //getNotes(this.props);
+  //         console.log("getting notes");
+  //         return;
+  //       }
+  //     });
+  //   });
+
+  //   //this.props.notes.xorWith(prevProps.notes, _.isEqual).isEmpty();
+  //   //if (this.props.notes !== prevProps.notes) {
+  // }
 
   componentDidMount() {
     const fetchedNotes: INoteArray[] = [];
@@ -58,7 +73,8 @@ const mapDispatchToProps = (dispatch: any) => {
     selectnotes: (id: number) =>
       dispatch({ type: actiontypes.SELECT_NOTES, id }),
     fetchnotes: (fetchedNotes: INoteArray[]) =>
-      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes })
+      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
+    getnotes: () => dispatch(getnotes())
   };
 };
 

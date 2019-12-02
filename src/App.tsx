@@ -11,6 +11,7 @@ export interface INoteArray {
 }
 
 export interface ICurrentNoteArray {
+  id: number;
   heading: string;
   text: string;
 }

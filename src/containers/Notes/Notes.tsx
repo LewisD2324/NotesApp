@@ -5,74 +5,56 @@ import * as actiontypes from "../../store/actions/types";
 import { INotesState, ICurrentNoteArray, INoteArray } from "../../App";
 import { connect } from "react-redux";
 import axios from "../../axios.notes";
-import { getNotes } from "../NotesDisplay/NotesDisplay";
+import { addnotes } from "../../store/actions/actions";
+import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
 export interface INotesProps {
   notes: INoteArray[];
 
   currentnote: ICurrentNoteArray[];
 
   clearnotes: any;
-
   savetextNotes: any;
-
   saveheaderNotes: any;
   fetchnotes: any;
+  addnotes: any;
+  savenotes: any;
 }
 class Notes extends Component<INotesProps> {
-  componentDidUpdate() {
-    const fetchedNotes: INoteArray[] = [];
-    axios
-      .get("/Notes.json")
-      .then(res => {
-        for (let key in res.data) {
-          fetchedNotes.push({
-            ...res.data[key]
-          });
-        }
-        console.log(fetchedNotes);
-        this.props.fetchnotes(fetchedNotes);
-      })
-      .catch((err: Error) => {
-        //Create error screen for this instead
-        console.log("Error - Cannot Load Notes: ", err);
-      });
-  }
   addNotes = () => {
     //display alert if notes are empty
     if (
       this.props.currentnote[0].text != "" &&
       this.props.currentnote[0].heading != ""
     ) {
-      axios
-        .post("/Notes.json", this.props.currentnote[0])
-        .then(res => {
-          console.log("notes added");
-        })
-        .catch((err: Error) => {
-          console.log("Error adding note: ", err);
-        });
+      this.props.addnotes(this.props.currentnote[0]);
     }
   };
 
-  savetext = (changed: React.ChangeEvent<HTMLInputElement>) => {
+  updatetext = (changed: React.ChangeEvent<HTMLInputElement>) => {
     const updatednote = changed.target.value;
 
     this.props.savetextNotes(updatednote);
   };
 
-  saveheader = (changed: React.ChangeEvent<HTMLInputElement>) => {
+  updateheader = (changed: React.ChangeEvent<HTMLInputElement>) => {
     const updatednote = changed.target.value;
 
     this.props.saveheaderNotes(updatednote);
   };
+
+  savenotes = () => {};
   render() {
     return (
       <div>
         <Fragment>
-          <NotesToolBar onAdd={this.addNotes} onClear={this.props.clearnotes} />
+          <NotesToolBar
+            onAdd={this.addNotes}
+            onClear={this.props.clearnotes}
+            onSave={this.props.savenotes}
+          />
           <Noting
-            textchanged={this.savetext}
-            headerchanged={this.saveheader}
+            textchanged={this.updatetext}
+            headerchanged={this.updateheader}
             textvalue={this.props.currentnote[0].text}
             headervalue={this.props.currentnote[0].heading}
           />
@@ -90,7 +72,8 @@ const mapDispatchToProps = (dispatch: any) => {
     saveheaderNotes: (updatednote: string) =>
       dispatch({ type: actiontypes.SAVE_HEADER_NOTES, updatednote }),
     fetchnotes: (fetchedNotes: INoteArray[]) =>
-      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes })
+      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
+    addnotes: (addednote: ICurrentNoteArray[]) => dispatch(addnotes(addednote))
   };
 };
 

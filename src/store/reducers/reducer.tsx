@@ -4,7 +4,7 @@ import { NoteActions } from "../actions/types";
 
 const notesarray = [{ id: 0, heading: "test", text: "testing" }];
 
-const currentnotesarray = [{ heading: "", text: "" }];
+const currentnotesarray = [{ id: 0, heading: "", text: "" }];
 
 const initialState: INotesState = {
   notes: notesarray,
@@ -21,10 +21,7 @@ const reducer = (
       console.log({ state, action });
       const newclearnotesState = { ...state };
       newclearnotesState.currentnote = [
-        {
-          text: "",
-          heading: ""
-        }
+        { id: newclearnotesState.currentnote[0].id, text: "", heading: "" }
       ];
       return newclearnotesState;
     case actionTypes.SAVE_TEXT_NOTES:
@@ -33,6 +30,7 @@ const reducer = (
       console.log(newupdatedtextState);
       newupdatedtextState.currentnote = [
         {
+          id: newupdatedtextState.currentnote[0].id,
           text: action.updatednote,
           heading: newupdatedtextState.currentnote[0].heading
         }
@@ -43,6 +41,7 @@ const reducer = (
       const newupdatedheaderState = { ...state };
       newupdatedheaderState.currentnote = [
         {
+          id: newupdatedheaderState.currentnote[0].id,
           text: newupdatedheaderState.currentnote[0].text,
           heading: action.updatednote
         }
@@ -54,6 +53,7 @@ const reducer = (
       const newState = { ...state };
       newState.currentnote = [
         {
+          id: selectednote[0].id,
           text: selectednote[0].text,
           heading: selectednote[0].heading
         }
@@ -63,9 +63,20 @@ const reducer = (
 
     case actionTypes.FETCH_NOTES:
       console.log({ state, action });
+      const newnoteState = { ...state };
+
+      newnoteState.currentnote = [
+        {
+          id: action.id,
+          text: newnoteState.currentnote[0].text,
+          heading: newnoteState.currentnote[0].heading
+        }
+      ];
+
       return {
         ...state,
-        notes: action.fetchedNotes
+        notes: action.fetchedNotes,
+        currentnote: newnoteState.currentnote
       };
     default:
       return state;
