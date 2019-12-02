@@ -5,7 +5,7 @@ import * as actiontypes from "../../store/actions/types";
 import { INotesState, ICurrentNoteArray, INoteArray } from "../../App";
 import { connect } from "react-redux";
 import axios from "../../axios.notes";
-import { addnotes } from "../../store/actions/actions";
+import { addnotes, updatenotes } from "../../store/actions/actions";
 import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
 export interface INotesProps {
   notes: INoteArray[];
@@ -17,7 +17,6 @@ export interface INotesProps {
   saveheaderNotes: any;
   fetchnotes: any;
   addnotes: any;
-  savenotes: any;
 }
 class Notes extends Component<INotesProps> {
   addNotes = () => {
@@ -42,7 +41,11 @@ class Notes extends Component<INotesProps> {
     this.props.saveheaderNotes(updatednote);
   };
 
-  savenotes = () => {};
+  savenotes = () => {
+    if (this.props.notes.find(x => x.id === this.props.currentnote[0].id)) {
+      updatenotes(this.props.currentnote);
+    }
+  };
   render() {
     return (
       <div>
@@ -50,7 +53,7 @@ class Notes extends Component<INotesProps> {
           <NotesToolBar
             onAdd={this.addNotes}
             onClear={this.props.clearnotes}
-            onSave={this.props.savenotes}
+            onSave={this.savenotes}
           />
           <Noting
             textchanged={this.updatetext}
@@ -73,7 +76,9 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch({ type: actiontypes.SAVE_HEADER_NOTES, updatednote }),
     fetchnotes: (fetchedNotes: INoteArray[]) =>
       dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
-    addnotes: (addednote: ICurrentNoteArray[]) => dispatch(addnotes(addednote))
+    addnotes: (addednote: ICurrentNoteArray[]) => dispatch(addnotes(addednote)),
+    updatenotes: (updatednote: ICurrentNoteArray[]) =>
+      dispatch(updatenotes(updatednote))
   };
 };
 

@@ -5,11 +5,8 @@ import { INoteArray, ICurrentNoteArray } from "../../App";
 export const CLEAR_NOTES = "CLEAR_NOTES";
 export const SAVE_TEXT_NOTES = "SAVE_TEXT_NOTES";
 export const SAVE_HEADER_NOTES = "SAVE_HEADER_NOTES";
-export const ADD_NOTES = "ADD_NOTES";
 export const SELECT_NOTES = "SELECT_NOTES";
 export const FETCH_NOTES = "FETCH_NOTES";
-export const FETCH_NOTES2 = "FETCH_NOTES2";
-
 
 export function isAction<A extends Action>(
   action: Action,
@@ -43,16 +40,9 @@ export interface IActionFetchNotes extends Action {
   id: number;
 }
 
-export interface IActionAddNotes extends Action {
-  type: "ADD_NOTES";
-  addednote: ICurrentNoteArray[];
-}
-
-
 export type NoteActions =
   | IActionClearNotes
   | IActionSaveTextNotes
   | IActionSaveHeaderNotes
   | IActionSelectNotes
-  | IActionFetchNotes
-  | IActionAddNotes;
+  | IActionFetchNotes;

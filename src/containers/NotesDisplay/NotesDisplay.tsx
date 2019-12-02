@@ -4,10 +4,10 @@ import NotesList from "../../components/NotesList/NotesList";
 import { INoteArray, INotesState, ICurrentNoteArray } from "../../App";
 import { connect } from "react-redux";
 import * as actiontypes from "../../store/actions/types";
-import axios from "../../axios.notes";
 import * as _ from "lodash";
 import { getnotes } from "../../store/actions/actions";
-
+import MaterialTable from "../UI/MaterialTable/MaterialTable";
+import MaterialDrawer from "../UI/MaterialDrawer/MaterialDrawer";
 export interface INotesDisplayProps {
   notes: INoteArray[];
   selectnotes: any;
@@ -62,6 +62,8 @@ class NotesDisplay extends Component<INotesDisplayProps> {
     return (
       <Fragment>
         <SearchBar />
+        <MaterialDrawer />
+        {/* <MaterialTable /> */}
         <NotesList notes={this.props.notes} selectnotes={this.selectNotes} />
       </Fragment>
     );

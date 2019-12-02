@@ -3,21 +3,20 @@ import {
   SAVE_TEXT_NOTES,
   SAVE_HEADER_NOTES,
   SELECT_NOTES,
-  ADD_NOTES,
   FETCH_NOTES,
   IActionClearNotes,
   CLEAR_NOTES,
   IActionSaveTextNotes,
   IActionSaveHeaderNotes,
   IActionSelectNotes,
-  IActionFetchNotes,
-  IActionAddNotes
+  IActionFetchNotes
 } from "./types";
 import axios from "../../axios.notes";
 import { ThunkDispatch, ThunkAction } from "redux-thunk";
 import { AnyAction } from "redux";
 import { getNotes } from "../../containers/NotesDisplay/NotesDisplay";
-
+import * as firebase from "firebase";
+import { functionExpression } from "@babel/types";
 //action creators
 export function clearnotes(): IActionClearNotes {
   return {
@@ -69,6 +68,24 @@ export function getnotes() {
             ...res.data[key]
           });
         }
+        // const config = {
+        //   databaseURL: "https://mynotesapp-cc6e4.firebaseio.com/"
+        // };
+        // firebase.initializeApp(config);
+        // const rootRef = firebase.database().ref();
+        // const fooRef = rootRef.child("Notes");
+        // fooRef.on("value", snap => {
+        //   const foo = snap.val();
+        //   if (foo !== null) {
+        //     Object.keys(foo).forEach(key => {
+        //       // The ID is the key
+        //       console.log(key);
+        //       // The Object is foo[key]
+        //       console.log(foo[key]);
+        //     });
+        //   }
+        // });
+
         for (var i = 0; i < fetchedNotes.length + 1; i++) {
           id = Number(i) + 1;
         }
@@ -100,4 +117,20 @@ export function addnotes(
     //   dispatch(clearnotes);
     // }, 1000);
   };
+}
+
+export function updatenotes(updatednote: ICurrentNoteArray[]) {
+  console.log("aodjpf : ");
+  axios
+    .put("/Notes.json", updatednote)
+    .then(res => {
+      console.log("notes updated: ", res.data);
+      //  dispatch(getnotes());
+    })
+    .catch((err: Error) => {
+      console.log("Error updating note: ", err);
+    });
+  // setTimeout(() => {
+  //   dispatch(clearnotes);
+  // }, 1000);
 }
