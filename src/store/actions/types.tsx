@@ -7,6 +7,8 @@ export const SAVE_TEXT_NOTES = "SAVE_TEXT_NOTES";
 export const SAVE_HEADER_NOTES = "SAVE_HEADER_NOTES";
 export const SELECT_NOTES = "SELECT_NOTES";
 export const FETCH_NOTES = "FETCH_NOTES";
+export const CHECKED_NOTES = "CHECKED_NOTES";
+export const DELETE_NOTES = "DELETE_NOTES";
 
 export function isAction<A extends Action>(
   action: Action,
@@ -31,18 +33,27 @@ export interface IActionSaveHeaderNotes extends Action {
 
 export interface IActionSelectNotes extends Action {
   type: "SELECT_NOTES";
-  id: number;
+  id: string;
 }
 
 export interface IActionFetchNotes extends Action {
   type: "FETCH_NOTES";
   fetchedNotes: INoteArray[];
-  id: number;
+}
+export interface IActionDeleteNotes extends Action {
+  type: "DELETE_NOTES";
 }
 
+export interface IActionCheckedNotes extends Action {
+  type: "CHECKED_NOTES";
+  selected: boolean;
+  id: string;
+}
 export type NoteActions =
   | IActionClearNotes
   | IActionSaveTextNotes
   | IActionSaveHeaderNotes
   | IActionSelectNotes
-  | IActionFetchNotes;
+  | IActionFetchNotes
+  | IActionCheckedNotes
+  | IActionDeleteNotes;

@@ -24,40 +24,7 @@ import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import classes from "./Material.module.css";
-
-interface Data {
-  calories: number;
-  carbs: number;
-  fat: number;
-  name: string;
-  protein: number;
-}
-
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number
-): Data {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Donut", 452, 25.0, 51, 4.9),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Honeycomb", 408, 3.2, 87, 6.5),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Jelly Bean", 375, 0.0, 94, 0.0),
-  createData("KitKat", 518, 26.0, 65, 7.0),
-  createData("Lollipop", 392, 0.2, 98, 0.0),
-  createData("Marshmallow", 318, 0, 81, 2.0),
-  createData("Nougat", 360, 19.0, 9, 37.0),
-  createData("Oreo", 437, 18.0, 63, 4.0)
-];
+import { INoteArray } from "../../../App";
 
 function desc<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -85,8 +52,8 @@ function getSorting<K extends keyof any>(
   order: Order,
   orderBy: K
 ): (
-  a: { [key in K]: number | string },
-  b: { [key in K]: number | string }
+  a: { [key in K]: number | string | boolean },
+  b: { [key in K]: number | string | boolean }
 ) => number {
   return order === "desc"
     ? (a, b) => desc(a, b, orderBy)
@@ -95,29 +62,31 @@ function getSorting<K extends keyof any>(
 
 interface HeadCell {
   disablePadding: boolean;
-  id: keyof Data;
+  id: keyof INoteArray;
   label: string;
   numeric: boolean;
 }
 
 const headCells: HeadCell[] = [
   {
-    id: "name",
+    id: "heading",
     numeric: false,
     disablePadding: true,
-    label: "Dessert (100g serving)"
+    label: "Notes Header"
   },
-  { id: "calories", numeric: true, disablePadding: false, label: "Calories" },
-  { id: "fat", numeric: true, disablePadding: false, label: "Fat (g)" },
-  { id: "carbs", numeric: true, disablePadding: false, label: "Carbs (g)" },
-  { id: "protein", numeric: true, disablePadding: false, label: "Protein (g)" }
+  {
+    id: "text",
+    numeric: true,
+    disablePadding: false,
+    label: "Notes Text"
+  }
 ];
 
 interface EnhancedTableProps {
   numSelected: number;
   onRequestSort: (
     event: React.MouseEvent<unknown>,
-    property: keyof Data
+    property: keyof INoteArray
   ) => void;
   onSelectAllClick: (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -137,7 +106,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     rowCount,
     onRequestSort
   } = props;
-  const createSortHandler = (property: keyof Data) => (
+  const createSortHandler = (property: keyof INoteArray) => (
     event: React.MouseEvent<unknown>
   ) => {
     onRequestSort(event, property);
@@ -150,8 +119,9 @@ function EnhancedTableHead(props: EnhancedTableProps) {
           <Checkbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={numSelected === rowCount}
+            //checked = { this.props.notes ? rowCount === numSelected : false}
             onChange={onSelectAllClick}
-            inputProps={{ "aria-label": "select all desserts" }}
+            inputProps={{ "aria-label": "select all notes" }}
           />
         </TableCell>
         {headCells.map(headCell => (
@@ -182,6 +152,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
+  deletenotes: any;
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
@@ -195,58 +166,43 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         </Typography>
       ) : (
         <Typography variant="h6" id="tableTitle">
-          Nutrition
+          Notes List
         </Typography>
       )}
-      {numSelected > 0 ? (
+      {
+        // numSelected > 0 ? (
+
         <Tooltip title="Delete">
           <IconButton aria-label="delete">
-            <DeleteIcon />
+            <DeleteIcon onClick={props.deletenotes} />
           </IconButton>
         </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
+
+        //) : null
+
+        // (
+        //   <Tooltip title="Filter list">
+        //     <IconButton aria-label="filter list">
+        //       <FilterListIcon />
+        //     </IconButton>
+        //   </Tooltip>
+        // )
+      }
     </Toolbar>
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: "100%"
-    },
-    paper: {
-      width: "100%",
-      marginBottom: theme.spacing(2)
-    },
-    table: {
-      minWidth: 750
-    },
-    tableWrapper: {
-      overflowX: "auto"
-    },
-    visuallyHidden: {
-      border: 0,
-      clip: "rect(0 0 0 0)",
-      height: 1,
-      margin: -1,
-      overflow: "hidden",
-      padding: 0,
-      position: "absolute",
-      top: 20,
-      width: 1
-    }
-  })
-);
+interface IMaterialTableProps {
+  notes: INoteArray[];
+  isChecked: any;
+  selectnotes: any;
+  deletenotes: any;
+  // id: any;
+}
 
-const MaterialTable = () => {
+const MaterialTable = (props: IMaterialTableProps) => {
   const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("calories");
+  const [orderBy, setOrderBy] = React.useState<keyof INoteArray>("id");
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
@@ -254,7 +210,7 @@ const MaterialTable = () => {
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
-    property: keyof Data
+    property: keyof INoteArray
   ) => {
     const isDesc = orderBy === property && order === "desc";
     setOrder(isDesc ? "asc" : "desc");
@@ -263,32 +219,12 @@ const MaterialTable = () => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map(n => n.name);
+      const newSelecteds = props.notes.map(n => n.heading);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
-
-  //   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-  //     const selectedIndex = selected.indexOf(name);
-  //     let newSelected: string[] = [];
-
-  //     if (selectedIndex === -1) {
-  //       newSelected = newSelected.concat(selected, name);
-  //     } else if (selectedIndex === 0) {
-  //       newSelected = newSelected.concat(selected.slice(1));
-  //     } else if (selectedIndex === selected.length - 1) {
-  //       newSelected = newSelected.concat(selected.slice(0, -1));
-  //     } else if (selectedIndex > 0) {
-  //       newSelected = newSelected.concat(
-  //         selected.slice(0, selectedIndex),
-  //         selected.slice(selectedIndex + 1)
-  //       );
-  //     }
-
-  //     setSelected(newSelected);
-  //   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -301,19 +237,17 @@ const MaterialTable = () => {
     setPage(0);
   };
 
-  //   const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     setDense(event.target.checked);
-  //   };
-
-  //   const isSelected = (name: string) => selected.indexOf(name) !== -1;
-
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    rowsPerPage -
+    Math.min(rowsPerPage, props.notes.length - page * rowsPerPage);
 
   return (
     <div className={classes.MaterialTable}>
       <Paper>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          deletenotes={props.deletenotes}
+        />
         <div>
           <Table
             aria-labelledby="tableTitle"
@@ -326,10 +260,10 @@ const MaterialTable = () => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={props.notes.length}
             />
             <TableBody>
-              {stableSort(rows, getSorting(order, orderBy))
+              {stableSort(props.notes, getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const labelId = `enhanced-table-checkbox-${index}`;
@@ -339,10 +273,15 @@ const MaterialTable = () => {
                       hover
                       role="checkbox"
                       tabIndex={-1}
-                      key={row.name}
+                      key={row.id}
+                      onClick={() => props.selectnotes(row.id)}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox inputProps={{ "aria-labelledby": labelId }} />
+                        <Checkbox
+                          inputProps={{ "aria-labelledby": labelId }}
+                          onChange={props.isChecked}
+                          value={row.id}
+                        />
                       </TableCell>
                       <TableCell
                         component="th"
@@ -350,12 +289,9 @@ const MaterialTable = () => {
                         scope="row"
                         padding="none"
                       >
-                        {row.name}
+                        {row.heading}
                       </TableCell>
-                      <TableCell align="right">{row.calories}</TableCell>
-                      <TableCell align="right">{row.fat}</TableCell>
-                      <TableCell align="right">{row.carbs}</TableCell>
-                      <TableCell align="right">{row.protein}</TableCell>
+                      <TableCell align="right">{row.text}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -370,17 +306,13 @@ const MaterialTable = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={props.notes.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
-      {/* <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      /> */}
     </div>
   );
 };

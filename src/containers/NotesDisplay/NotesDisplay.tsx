@@ -5,7 +5,11 @@ import { INoteArray, INotesState, ICurrentNoteArray } from "../../App";
 import { connect } from "react-redux";
 import * as actiontypes from "../../store/actions/types";
 import * as _ from "lodash";
-import { getnotes } from "../../store/actions/actions";
+import {
+  getnotes,
+  checkednotes,
+  deletenotes
+} from "../../store/actions/actions";
 import MaterialTable from "../UI/MaterialTable/MaterialTable";
 import MaterialDrawer from "../UI/MaterialDrawer/MaterialDrawer";
 export interface INotesDisplayProps {
@@ -13,8 +17,9 @@ export interface INotesDisplayProps {
   selectnotes: any;
   fetchnotes: any;
   getnotes: any;
-
+  checkednotes: any;
   currentnote: ICurrentNoteArray[];
+  deletenotes: any;
 }
 
 export function getNotes(props: INotesDisplayProps) {
@@ -22,7 +27,7 @@ export function getNotes(props: INotesDisplayProps) {
 }
 
 class NotesDisplay extends Component<INotesDisplayProps> {
-  selectNotes = (id: number) => {
+  selectNotes = (id: string) => {
     this.props.selectnotes(id);
 
     console.log(this.props.currentnote);
@@ -53,9 +58,32 @@ class NotesDisplay extends Component<INotesDisplayProps> {
   //   //if (this.props.notes !== prevProps.notes) {
   // }
 
+  onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    const id = e.target.value;
+
+    console.log(checked, id);
+    this.props.checkednotes(checked, id);
+    console.log(this.props.notes);
+  };
+
+  onDeleteNotes = () => {
+    //finish this when we change firestore to cloud firestore version
+    const deletednotes = this.props.notes.find(note => note.isselected == true);
+    let id: string = "";
+    for (let i = 0; i < this.props.notes.length + 1; i++) {
+      if (this.props.notes[i].isselected == true) {
+        id = this.props.notes[i].id;
+      }
+    }
+    console.log(deletednotes, id);
+    //this.props.deletenotes(deletednotes);
+  };
+
   componentDidMount() {
     const fetchedNotes: INoteArray[] = [];
     getNotes(this.props);
+    console.log(this.props.notes);
   }
 
   render() {
@@ -63,8 +91,14 @@ class NotesDisplay extends Component<INotesDisplayProps> {
       <Fragment>
         <SearchBar />
         <MaterialDrawer />
-        {/* <MaterialTable /> */}
-        <NotesList notes={this.props.notes} selectnotes={this.selectNotes} />
+        <MaterialTable
+          notes={this.props.notes}
+          selectnotes={this.selectNotes}
+          isChecked={this.onChecked}
+          deletenotes={this.onDeleteNotes}
+        />
+
+        {/* <NotesList notes={this.props.notes} selectnotes={this.selectNotes} /> */}
       </Fragment>
     );
   }
@@ -72,11 +106,14 @@ class NotesDisplay extends Component<INotesDisplayProps> {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    selectnotes: (id: number) =>
+    selectnotes: (id: string) =>
       dispatch({ type: actiontypes.SELECT_NOTES, id }),
     fetchnotes: (fetchedNotes: INoteArray[]) =>
       dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
-    getnotes: () => dispatch(getnotes())
+    getnotes: () => dispatch(getnotes()),
+    checkednotes: (selected: boolean, id: string) =>
+      dispatch({ type: actiontypes.CHECKED_NOTES, selected, id }),
+    deletenotes: (notes: INoteArray[]) => dispatch(deletenotes(notes))
   };
 };
 

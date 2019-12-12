@@ -2,9 +2,11 @@ import { INotesState } from "../../App";
 import * as actionTypes from "../actions/types";
 import { NoteActions } from "../actions/types";
 
-const notesarray = [{ id: 0, heading: "test", text: "testing" }];
+const notesarray = [
+  { id: "0", heading: "test", text: "testing", isselected: false }
+];
 
-const currentnotesarray = [{ id: 0, heading: "", text: "" }];
+const currentnotesarray = [{ id: "0", heading: "", text: "" }];
 
 const initialState: INotesState = {
   notes: notesarray,
@@ -61,23 +63,32 @@ const reducer = (
 
       return newState;
 
-    case actionTypes.FETCH_NOTES:
+    case actionTypes.CHECKED_NOTES:
       console.log({ state, action });
-      const newnoteState = { ...state };
-
-      newnoteState.currentnote = [
-        {
-          id: action.id,
-          text: newnoteState.currentnote[0].text,
-          heading: newnoteState.currentnote[0].heading
-        }
-      ];
 
       return {
         ...state,
-        notes: action.fetchedNotes,
-        currentnote: newnoteState.currentnote
+        notes: state.notes.map(note =>
+          note.id == action.id ? { ...note, isselected: action.selected } : note
+        )
       };
+    case actionTypes.FETCH_NOTES:
+      console.log({ state, action });
+      // const newnoteState = { ...state };
+
+      // newnoteState.currentnote = [
+      //   {
+      //     id: newnoteState.currentnote[0].id,
+      //     text: newnoteState.currentnote[0].text,
+      //     heading: newnoteState.currentnote[0].heading
+      //   }
+      // ];
+
+      return {
+        ...state,
+        notes: action.fetchedNotes
+      };
+
     default:
       return state;
   }

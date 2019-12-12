@@ -7,11 +7,12 @@ import NotesDisplay from "./containers/NotesDisplay/NotesDisplay";
 export interface INoteArray {
   heading: string;
   text: string;
-  id: number;
+  id: string;
+  isselected: boolean;
 }
 
 export interface ICurrentNoteArray {
-  id: number;
+  id: string;
   heading: string;
   text: string;
 }

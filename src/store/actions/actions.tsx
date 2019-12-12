@@ -9,14 +9,18 @@ import {
   IActionSaveTextNotes,
   IActionSaveHeaderNotes,
   IActionSelectNotes,
-  IActionFetchNotes
+  IActionFetchNotes,
+  IActionCheckedNotes,
+  CHECKED_NOTES,
+  DELETE_NOTES,
+  IActionDeleteNotes
 } from "./types";
 import axios from "../../axios.notes";
 import { ThunkDispatch, ThunkAction } from "redux-thunk";
 import { AnyAction } from "redux";
 import { getNotes } from "../../containers/NotesDisplay/NotesDisplay";
-import * as firebase from "firebase";
 import { functionExpression } from "@babel/types";
+import firebase from "../../Firebase";
 //action creators
 export function clearnotes(): IActionClearNotes {
   return {
@@ -38,58 +42,88 @@ export function saveheaderNotes(updatednote: string): IActionSaveHeaderNotes {
   };
 }
 
-export function selectnotes(id: number): IActionSelectNotes {
+export function deletenotes(
+  notes: INoteArray[]
+): ThunkAction<Promise<void>, {}, {}, AnyAction> {
+  return async (dispatch: ThunkDispatch<{}, {}, AnyAction>): Promise<void> => {
+    return await axios
+      .delete("/Notes/" + notes.find(note => note.id) + ".json")
+      .then(res => {
+        dispatch(getnotes());
+      })
+      .catch((err: Error) => {
+        console.log("Error deleting notes: ", err);
+      });
+    // setTimeout(() => {
+    //   dispatch(clearnotes);
+    // }, 1000);
+  };
+}
+export function selectnotes(id: string): IActionSelectNotes {
   return {
     type: SELECT_NOTES,
     id
   };
 }
 
-export function fetchednotes(
-  fetchedNotes: INoteArray[],
-  id: number
-): IActionFetchNotes {
+export function checkednotes(
+  selected: boolean,
+  id: string
+): IActionCheckedNotes {
+  return {
+    type: CHECKED_NOTES,
+    selected,
+    id
+  };
+}
+
+export function fetchednotes(fetchedNotes: INoteArray[]): IActionFetchNotes {
   return {
     type: FETCH_NOTES,
-    fetchedNotes,
-    id
+    fetchedNotes
   };
 }
 
 export function getnotes() {
   return function(dispatch: any) {
     const fetchedNotes: INoteArray[] = [];
-    let id = 0;
+
+    const db = firebase.firestore();
+    db.settings({
+      timestampsInSnapshots: true
+    });
+
+    let notes: any = [];
+    db.collection("Notes")
+      .get()
+      .then(snapshot => {
+        snapshot.docs.forEach(doc => {
+          notes.push({
+            ...doc.data(),
+            isselected: false,
+            id: doc.id
+          });
+        });
+      });
+
+    console.log(notes);
+
     axios
       .get("/Notes.json")
       .then(res => {
         for (let key in res.data) {
           fetchedNotes.push({
-            ...res.data[key]
+            ...res.data[key],
+            id: key
           });
         }
-        // const config = {
-        //   databaseURL: "https://mynotesapp-cc6e4.firebaseio.com/"
-        // };
-        // firebase.initializeApp(config);
-        // const rootRef = firebase.database().ref();
-        // const fooRef = rootRef.child("Notes");
-        // fooRef.on("value", snap => {
-        //   const foo = snap.val();
-        //   if (foo !== null) {
-        //     Object.keys(foo).forEach(key => {
-        //       // The ID is the key
-        //       console.log(key);
-        //       // The Object is foo[key]
-        //       console.log(foo[key]);
-        //     });
-        //   }
-        // });
+        console.log(fetchedNotes);
 
-        for (var i = 0; i < fetchedNotes.length + 1; i++) {
-          id = Number(i) + 1;
-        }
-        dispatch(fetchednotes(fetchedNotes, id));
+        fetchedNotes.forEach(function(element) {
+          element.isselected = false;
+        });
+
+        dispatch(fetchednotes(notes));
       })
       .catch((err: Error) => {
         //Create Error action reponse for this
@@ -120,7 +154,6 @@ export function addnotes(
 }
 
 export function updatenotes(updatednote: ICurrentNoteArray[]) {
-  console.log("aodjpf : ");
   axios
     .put("/Notes.json", updatednote)
     .then(res => {

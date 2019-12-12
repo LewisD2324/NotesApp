@@ -1,3 +1,11 @@
 .MaterialTable {
-  width: 300px;
+  position: absolute;
+  width: 500px;
+  max-width: 500px;
+  left: 900px;
+  top: 170px;
 }
+
+/* .MaterialTable > TableRow :hover {
+  color: blue;
+} */
