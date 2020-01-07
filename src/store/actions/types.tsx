@@ -9,6 +9,11 @@ export const SELECT_NOTES = "SELECT_NOTES";
 export const FETCH_NOTES = "FETCH_NOTES";
 export const CHECKED_NOTES = "CHECKED_NOTES";
 export const DELETE_NOTES = "DELETE_NOTES";
+export const AUTH_START = "AUTH_START";
+export const AUTH_FAIL = "AUTH_FAIL";
+export const AUTH_SUCCESS = "AUTH_SUCCESS";
+export const LOG_OUT = "LOG_OUT";
+
 
 export function isAction<A extends Action>(
   action: Action,
@@ -49,6 +54,21 @@ export interface IActionCheckedNotes extends Action {
   selected: boolean;
   id: string;
 }
+
+export interface IActionAuthFail extends Action {
+  type: "AUTH_FAIL";
+  error: string | null;
+}
+
+export interface IActionAuthSuccess extends Action {
+  type: "AUTH_SUCCESS";
+  userId: any;
+  idToken: any;
+}
+
+export interface IActionAuthStart extends Action {
+  type: "AUTH_START";
+}
 export type NoteActions =
   | IActionClearNotes
   | IActionSaveTextNotes
@@ -56,4 +76,7 @@ export type NoteActions =
   | IActionSelectNotes
   | IActionFetchNotes
   | IActionCheckedNotes
-  | IActionDeleteNotes;
+  | IActionDeleteNotes
+  | IActionAuthSuccess
+  | IActionAuthFail
+  | IActionAuthStart;

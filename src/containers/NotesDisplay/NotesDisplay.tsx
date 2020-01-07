@@ -1,7 +1,12 @@
 import React, { Fragment, Component } from "react";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import NotesList from "../../components/NotesList/NotesList";
-import { INoteArray, INotesState, ICurrentNoteArray } from "../../App";
+import {
+  INoteArray,
+  NotesState,
+  ICurrentNoteArray,
+  IAppState
+} from "../../App";
 import { connect } from "react-redux";
 import * as actiontypes from "../../store/actions/types";
 import * as _ from "lodash";
@@ -12,6 +17,7 @@ import {
 } from "../../store/actions/actions";
 import MaterialTable from "../UI/MaterialTable/MaterialTable";
 import MaterialDrawer from "../UI/MaterialDrawer/MaterialDrawer";
+import ConfirmationDialog from "../UI/ConfirmationDialog/ConfirmationDialog";
 export interface INotesDisplayProps {
   notes: INoteArray[];
   selectnotes: any;
@@ -22,11 +28,25 @@ export interface INotesDisplayProps {
   deletenotes: any;
 }
 
+interface INotesDisplayState {
+  show: boolean;
+}
+
 export function getNotes(props: INotesDisplayProps) {
   props.getnotes();
 }
 
 class NotesDisplay extends Component<INotesDisplayProps> {
+  // constructor(props: INotesDisplayProps) {
+  //   super(props);
+  //   this.state = {
+  //     show: true
+  //   };
+  // }
+
+  state: INotesDisplayState = {
+    show: false
+  };
   selectNotes = (id: string) => {
     this.props.selectnotes(id);
 
@@ -68,16 +88,20 @@ class NotesDisplay extends Component<INotesDisplayProps> {
   };
 
   onDeleteNotes = () => {
-    //finish this when we change firestore to cloud firestore version
-    const deletednotes = this.props.notes.find(note => note.isselected == true);
-    let id: string = "";
-    for (let i = 0; i < this.props.notes.length + 1; i++) {
-      if (this.props.notes[i].isselected == true) {
-        id = this.props.notes[i].id;
-      }
-    }
-    console.log(deletednotes, id);
-    //this.props.deletenotes(deletednotes);
+    const deletednotes = this.props.notes.filter(
+      note => note.isselected == true
+    );
+    this.props.deletenotes(deletednotes);
+
+    this.setState({ show: false });
+  };
+
+  OpenModel = () => {
+    this.setState({ show: true });
+  };
+
+  CloseModel = () => {
+    this.setState({ show: false });
   };
 
   componentDidMount() {
@@ -89,16 +113,22 @@ class NotesDisplay extends Component<INotesDisplayProps> {
   render() {
     return (
       <Fragment>
-        <SearchBar />
-        <MaterialDrawer />
+        {this.state.show ? (
+          <ConfirmationDialog
+            open={this.state.show}
+            title={"Delete"}
+            description={"Are you sure you want to Delete?"}
+            onSubmit={this.onDeleteNotes}
+            onClose={this.CloseModel}
+          />
+        ) : null}
+        {/* <SearchBar /> */}
         <MaterialTable
           notes={this.props.notes}
           selectnotes={this.selectNotes}
           isChecked={this.onChecked}
-          deletenotes={this.onDeleteNotes}
+          deletenotes={this.OpenModel}
         />
-
-        {/* <NotesList notes={this.props.notes} selectnotes={this.selectNotes} /> */}
       </Fragment>
     );
   }
@@ -117,10 +147,10 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-const mapStateToProps = (state: INotesState) => {
+const mapStateToProps = (state: IAppState) => {
   return {
-    notes: state.notes,
-    currentnote: state.currentnote
+    notes: state.notes.items,
+    currentnote: state.notes.currentnote
   };
 };
 

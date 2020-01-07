@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import classes from "./NotesList.module.css";
-import { INoteArray, INotesState } from "../../App";
+import { INoteArray, NotesState } from "../../App";
 import {
   createStyles,
   Paper,

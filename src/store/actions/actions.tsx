@@ -13,7 +13,14 @@ import {
   IActionCheckedNotes,
   CHECKED_NOTES,
   DELETE_NOTES,
-  IActionDeleteNotes
+  IActionDeleteNotes,
+  AUTH_SUCCESS,
+  IActionAuthSuccess,
+  IActionAuthFail,
+  AUTH_FAIL,
+  IActionAuthStart,
+  AUTH_START,
+  LOG_OUT
 } from "./types";
 import axios from "../../axios.notes";
 import { ThunkDispatch, ThunkAction } from "redux-thunk";
@@ -42,21 +49,23 @@ export function saveheaderNotes(updatednote: string): IActionSaveHeaderNotes {
   };
 }
 
-export function deletenotes(
-  notes: INoteArray[]
-): ThunkAction<Promise<void>, {}, {}, AnyAction> {
-  return async (dispatch: ThunkDispatch<{}, {}, AnyAction>): Promise<void> => {
-    return await axios
-      .delete("/Notes/" + notes.find(note => note.id) + ".json")
-      .then(res => {
-        dispatch(getnotes());
-      })
-      .catch((err: Error) => {
-        console.log("Error deleting notes: ", err);
-      });
-    // setTimeout(() => {
-    //   dispatch(clearnotes);
-    // }, 1000);
+export function deletenotes(notes: INoteArray[]) {
+  return (dispatch: any) => {
+    const db = firebase.firestore();
+    db.settings({
+      timestampsInSnapshots: true
+    });
+    notes.map(note => {
+      db.collection("Notes")
+        .doc(note.id)
+        .delete()
+        .catch((err: Error) => {
+          console.log("Could not add note: ", err);
+        });
+    });
+
+    dispatch(getnotes());
+    dispatch(clearnotes());
   };
 }
 export function selectnotes(id: string): IActionSelectNotes {
@@ -86,84 +95,149 @@ export function fetchednotes(fetchedNotes: INoteArray[]): IActionFetchNotes {
 
 export function getnotes() {
   return function(dispatch: any) {
-    const fetchedNotes: INoteArray[] = [];
-
     const db = firebase.firestore();
     db.settings({
       timestampsInSnapshots: true
     });
 
-    let notes: any = [];
+    let notes: INoteArray[] = [];
     db.collection("Notes")
       .get()
       .then(snapshot => {
         snapshot.docs.forEach(doc => {
           notes.push({
-            ...doc.data(),
-            isselected: false,
-            id: doc.id
+            heading: doc.get("heading"),
+            id: doc.id,
+            text: doc.get("text"),
+            isselected: false
           });
-        });
-      });
-
-    console.log(notes);
-
-    axios
-      .get("/Notes.json")
-      .then(res => {
-        for (let key in res.data) {
-          fetchedNotes.push({
-            ...res.data[key],
-            id: key
-          });
-        }
-        console.log(fetchedNotes);
-
-        fetchedNotes.forEach(function(element) {
-          element.isselected = false;
         });
 
         dispatch(fetchednotes(notes));
       })
       .catch((err: Error) => {
-        //Create Error action reponse for this
         console.log("Error - Cannot Load Notes: ", err);
       });
   };
 }
 
-export function addnotes(
-  addednote: ICurrentNoteArray[]
-): ThunkAction<Promise<void>, {}, {}, AnyAction> {
-  return async (dispatch: ThunkDispatch<{}, {}, AnyAction>): Promise<void> => {
-    return await axios
-      .post("/Notes.json", addednote)
-      .then(res => {
-        console.log("notes added: ", res.data);
-        dispatch(getnotes());
-
-        dispatch(clearnotes());
+export function addnotes(addednote: ICurrentNoteArray[]) {
+  return function(dispatch: any) {
+    const db = firebase.firestore();
+    db.settings({
+      timestampsInSnapshots: true
+    });
+    db.collection("Notes")
+      .add({
+        heading: addednote[0].heading,
+        text: addednote[0].text
       })
+      .then(dispatch(getnotes()))
+      .then(dispatch(clearnotes()))
       .catch((err: Error) => {
-        console.log("Error adding note: ", err);
+        console.log("Could not add note: ", err);
       });
-    // setTimeout(() => {
-    //   dispatch(clearnotes);
-    // }, 1000);
   };
 }
 
 export function updatenotes(updatednote: ICurrentNoteArray[]) {
-  axios
-    .put("/Notes.json", updatednote)
-    .then(res => {
-      console.log("notes updated: ", res.data);
-      //  dispatch(getnotes());
+  // return (dispatch: any) => {
+  const db = firebase.firestore();
+  db.settings({
+    timestampsInSnapshots: true
+  });
+  db.collection("Notes")
+    .doc(updatednote[0].id)
+    .update({
+      heading: updatednote[0].heading,
+      text: updatednote[0].text
     })
     .catch((err: Error) => {
-      console.log("Error updating note: ", err);
+      console.log("Could not update note: ", err);
     });
-  // setTimeout(() => {
-  //   dispatch(clearnotes);
-  // }, 1000);
+
+  //  dispatch(getnotes());
 }
+
+export function logout() {
+  return {
+    type: LOG_OUT
+  };
+}
+
+export function checkAuthTimeout(expirationTime: number) {
+  return (dispatch: any) => {
+    setTimeout(() => {
+      dispatch(logout());
+    }, expirationTime);
+  };
+}
+
+export function authSuccess(userId: any, idToken: any): IActionAuthSuccess {
+  return {
+    type: AUTH_SUCCESS,
+    userId,
+    idToken
+  };
+}
+
+export function authFail(error: string | null): IActionAuthFail {
+  return {
+    type: AUTH_FAIL,
+    error
+  };
+}
+
+export function authStart(): IActionAuthStart {
+  return {
+    type: AUTH_START
+  };
+}
+
+export async function auth(email: string, password: string) {
+  return async (dispatch: any) => {
+    dispatch(authStart());
+    let userId: string | undefined = "";
+
+    try {
+      const authToken = await firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password);
+      console.log(authToken);
+      if (!authToken.user) return;
+
+      userId = authToken.user?.uid;
+
+      const Idtoken = await authToken.user.getIdTokenResult(true);
+
+      const expirationTime: number = Number(Idtoken.expirationTime);
+
+      dispatch(authSuccess(userId, Idtoken.token));
+      dispatch(checkAuthTimeout(expirationTime));
+    } catch (error) {
+      dispatch(authFail(error.message));
+    }
+  };
+}
+
+export function signin(email: string, password: string) {
+  return (dispatch: any) => {
+    dispatch(authStart());
+
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(response => {
+        console.log(response);
+        // const idToken = response.user?.getIdToken;
+        // const userId = response.user?.uid;
+
+        // dispatch(authSuccess(userId, idToken));
+      })
+      .catch((err: Error) => {
+        console.log(err.message);
+      });
+  };
+}
+
+//https://heartbeat.fritz.ai/how-to-build-an-email-authentication-app-with-firebase-firestore-and-react-native-a18a8ba78574

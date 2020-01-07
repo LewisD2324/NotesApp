@@ -9,9 +9,9 @@ import {
 import React from "react";
 
 export interface IConfirmationDialogProps {
-  open: any;
+  open: boolean;
   title: any;
-  variant: any;
+  //variant: any;
   description: any;
   onSubmit: any;
   onClose: any;

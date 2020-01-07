@@ -24,7 +24,8 @@ import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import classes from "./Material.module.css";
-import { INoteArray } from "../../../App";
+import { INoteArray, NotesState } from "../../../App";
+import { connect } from "react-redux";
 
 function desc<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -119,7 +120,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
           <Checkbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={numSelected === rowCount}
-            //checked = { this.props.notes ? rowCount === numSelected : false}
+            // checked={props.notes ? rowCount === numSelected : false}
             onChange={onSelectAllClick}
             inputProps={{ "aria-label": "select all notes" }}
           />

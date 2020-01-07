@@ -2,11 +2,17 @@ import React, { Fragment, Component } from "react";
 import NotesToolBar from "../../components/NotesToolBar/NotesToolBar";
 import Noting from "../../components/Noting/Noting";
 import * as actiontypes from "../../store/actions/types";
-import { INotesState, ICurrentNoteArray, INoteArray } from "../../App";
+import {
+  NotesState,
+  ICurrentNoteArray,
+  INoteArray,
+  IAppState
+} from "../../App";
 import { connect } from "react-redux";
 import axios from "../../axios.notes";
-import { addnotes, updatenotes } from "../../store/actions/actions";
-import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
+import { addnotes, updatenotes, getnotes } from "../../store/actions/actions";
+import ConfirmationDialog from "../UI/ConfirmationDialog/ConfirmationDialog";
+import { getNotes } from "../NotesDisplay/NotesDisplay";
 export interface INotesProps {
   notes: INoteArray[];
 
@@ -17,15 +23,26 @@ export interface INotesProps {
   saveheaderNotes: any;
   fetchnotes: any;
   addnotes: any;
+  getnotes: any;
+  updatenotes: any;
 }
+
+interface INotesShowState {
+  show: boolean;
+}
+
 class Notes extends Component<INotesProps> {
+  state: INotesShowState = {
+    show: false
+  };
+
   addNotes = () => {
     //display alert if notes are empty
     if (
       this.props.currentnote[0].text != "" &&
       this.props.currentnote[0].heading != ""
     ) {
-      this.props.addnotes(this.props.currentnote[0]);
+      this.props.addnotes(this.props.currentnote);
     }
   };
 
@@ -44,16 +61,36 @@ class Notes extends Component<INotesProps> {
   savenotes = () => {
     if (this.props.notes.find(x => x.id === this.props.currentnote[0].id)) {
       updatenotes(this.props.currentnote);
+      this.props.getnotes();
+      this.setState({ show: false });
     }
   };
+
+  OpenModel = () => {
+    this.setState({ show: true });
+  };
+
+  CloseModel = () => {
+    this.setState({ show: false });
+  };
+
   render() {
     return (
       <div>
         <Fragment>
+          {this.state.show ? (
+            <ConfirmationDialog
+              open={this.state.show}
+              title={"Save"}
+              description={"Are you sure you want to overwrite this note?"}
+              onSubmit={this.savenotes}
+              onClose={this.CloseModel}
+            />
+          ) : null}
           <NotesToolBar
             onAdd={this.addNotes}
             onClear={this.props.clearnotes}
-            onSave={this.savenotes}
+            onSave={this.OpenModel}
           />
           <Noting
             textchanged={this.updatetext}
@@ -78,14 +115,15 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
     addnotes: (addednote: ICurrentNoteArray[]) => dispatch(addnotes(addednote)),
     updatenotes: (updatednote: ICurrentNoteArray[]) =>
-      dispatch(updatenotes(updatednote))
+      dispatch(updatenotes(updatednote)),
+    getnotes: () => dispatch(getnotes())
   };
 };
 
-const mapStateToProps = (state: INotesState) => {
+const mapStateToProps = (state: IAppState) => {
   return {
-    notes: state.notes,
-    currentnote: state.currentnote
+    notes: state.notes.items,
+    currentnote: state.notes.currentnote
   };
 };
 

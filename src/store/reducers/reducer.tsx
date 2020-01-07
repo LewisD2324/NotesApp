@@ -1,4 +1,4 @@
-import { INotesState } from "../../App";
+import { NotesState } from "../../App";
 import * as actionTypes from "../actions/types";
 import { NoteActions } from "../actions/types";
 
@@ -6,24 +6,28 @@ const notesarray = [
   { id: "0", heading: "test", text: "testing", isselected: false }
 ];
 
-const currentnotesarray = [{ id: "0", heading: "", text: "" }];
+const currentnotesarray = [{ id: "0", heading: "test", text: "test" }];
 
-const initialState: INotesState = {
-  notes: notesarray,
+const initialState: NotesState = {
+  items: notesarray,
   currentnote: currentnotesarray
 };
 
 const reducer = (
-  state: INotesState = initialState,
+  state: NotesState = initialState,
   action: NoteActions
-): INotesState => {
+): NotesState => {
   console.log({ state, action });
   switch (action.type) {
     case actionTypes.CLEAR_NOTES:
       console.log({ state, action });
       const newclearnotesState = { ...state };
       newclearnotesState.currentnote = [
-        { id: newclearnotesState.currentnote[0].id, text: "", heading: "" }
+        {
+          id: newclearnotesState.currentnote[0].id,
+          text: "",
+          heading: ""
+        }
       ];
       return newclearnotesState;
     case actionTypes.SAVE_TEXT_NOTES:
@@ -51,7 +55,7 @@ const reducer = (
       return newupdatedheaderState;
     case actionTypes.SELECT_NOTES:
       console.log({ state, action });
-      const selectednote = state.notes.filter(x => x.id == action.id);
+      const selectednote = state.items.filter(x => x.id == action.id);
       const newState = { ...state };
       newState.currentnote = [
         {
@@ -68,25 +72,15 @@ const reducer = (
 
       return {
         ...state,
-        notes: state.notes.map(note =>
+        items: state.items.map(note =>
           note.id == action.id ? { ...note, isselected: action.selected } : note
         )
       };
     case actionTypes.FETCH_NOTES:
       console.log({ state, action });
-      // const newnoteState = { ...state };
-
-      // newnoteState.currentnote = [
-      //   {
-      //     id: newnoteState.currentnote[0].id,
-      //     text: newnoteState.currentnote[0].text,
-      //     heading: newnoteState.currentnote[0].heading
-      //   }
-      // ];
-
       return {
         ...state,
-        notes: action.fetchedNotes
+        items: action.fetchedNotes
       };
 
     default:
