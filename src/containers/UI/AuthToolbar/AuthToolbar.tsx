@@ -17,7 +17,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import MaterialDrawer from "../MaterialDrawer/MaterialDrawer";
 import NotesLogo from "../../../assets/images/notes-icon-png-14.jpg";
 
-const MaterialToolbar = () => (
+const AuthToolbar = () => (
   <div>
     <AppBar position="static">
       <Toolbar>
@@ -26,9 +26,7 @@ const MaterialToolbar = () => (
           //className={classes.menuButton}
           color="inherit"
           aria-label="open drawer"
-        >
-          <MaterialDrawer />
-        </IconButton>
+        ></IconButton>
         <Typography variant="h6" noWrap>
           Notes App
         </Typography>
@@ -41,4 +39,4 @@ const MaterialToolbar = () => (
   </div>
 );
 
-export default MaterialToolbar;
+export default AuthToolbar;

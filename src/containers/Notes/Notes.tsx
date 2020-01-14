@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from "react";
 import NotesToolBar from "../../components/NotesToolBar/NotesToolBar";
 import Noting from "../../components/Noting/Noting";
-import * as actiontypes from "../../store/actions/types";
+import * as actiontypes from "../../store/actions/notesactiontypes";
 import {
   NotesState,
   ICurrentNoteArray,
@@ -9,8 +9,11 @@ import {
   IAppState
 } from "../../App";
 import { connect } from "react-redux";
-import axios from "../../axios.notes";
-import { addnotes, updatenotes, getnotes } from "../../store/actions/actions";
+import {
+  addnotes,
+  updatenotes,
+  getnotes
+} from "../../store/actions/notesactions";
 import ConfirmationDialog from "../UI/ConfirmationDialog/ConfirmationDialog";
 import { getNotes } from "../NotesDisplay/NotesDisplay";
 export interface INotesProps {

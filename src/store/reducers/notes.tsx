@@ -1,6 +1,6 @@
 import { NotesState } from "../../App";
-import * as actionTypes from "../actions/types";
-import { NoteActions } from "../actions/types";
+import * as actionTypes from "../actions/notesactiontypes";
+import { NoteActions } from "../actions/notesactiontypes";
 
 const notesarray = [
   { id: "0", heading: "test", text: "testing", isselected: false }
@@ -13,7 +13,7 @@ const initialState: NotesState = {
   currentnote: currentnotesarray
 };
 
-const reducer = (
+const notes = (
   state: NotesState = initialState,
   action: NoteActions
 ): NotesState => {
@@ -88,4 +88,4 @@ const reducer = (
   }
 };
 
-export default reducer;
+export default notes;

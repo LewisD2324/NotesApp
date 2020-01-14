@@ -12,9 +12,10 @@ import {
   Store,
   Reducer
 } from "redux";
-import notesreducer from "./store/reducers/reducer";
+import notesreducer from "./store/reducers/notes";
 import thunk from "redux-thunk";
 import authReducer from "./store/reducers/auth";
+import { verifyAuth } from "./store/actions/authactions";
 
 const composeEnhancers =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -24,10 +25,13 @@ const rootReducer = combineReducers({
   notes: notesreducer
 });
 
-const store: Store = createStore(
+const store: any = createStore(
   rootReducer,
   composeEnhancers(applyMiddleware(thunk))
 );
+
+//checks to see if user is logged in on refresh
+store.dispatch(verifyAuth());
 
 ReactDOM.render(
   <Provider store={store}>

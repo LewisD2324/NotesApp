@@ -1,35 +1,109 @@
-import * as actiontypes from "../actions/types";
-import { NoteActions } from "../actions/types";
+import * as actiontypes from "../actions/authactiontypes";
 import { AuthState } from "../../App";
+import { AuthActions } from "../actions/authactiontypes";
 
 const initialState: AuthState = {
-  token: "",
-  userId: "null",
-  error: null,
-  loading: false
+  isLoggingIn: false,
+  isLoggingOut: false,
+  isSigningUp: false,
+  isVerifying: false,
+  authError: "",
+  logoutError: false,
+  isAuthenticated: false,
+  verifyingError: false,
+  user: {}
 };
 
-export function reducer(state = initialState, action: NoteActions): AuthState {
+export function reducer(state = initialState, action: AuthActions): AuthState {
   switch (action.type) {
-    case actiontypes.AUTH_START:
+    // case actiontypes.AUTH_START:
+    //   return {
+    //     ...state,
+    //     error: null,
+    //     loading: true
+    //   };
+    // case actiontypes.AUTH_SUCCESS:
+    //   return {
+    //     ...state,
+    //     token: action.idToken,
+    //     userId: action.userId,
+    //     error: null,
+    //     loading: false
+    //   };
+    // case actiontypes.AUTH_FAIL:
+    //   return {
+    //     ...state,
+    //     error: action.error,
+    //     loading: false
+    //   };
+    //   case actiontypes.LOG_OUT:
+    //   return {
+    //     ...state,
+    //     token: null,
+    //     userId: null
+    //   }
+    case actiontypes.LOGIN_REQUEST:
       return {
         ...state,
-        error: null,
-        loading: true
+        isLoggingIn: true
       };
-    case actiontypes.AUTH_SUCCESS:
+    case actiontypes.LOGIN_SUCCESS:
       return {
         ...state,
-        token: action.idToken,
-        userId: action.userId,
-        error: null,
-        loading: false
+        isLoggingIn: false,
+        isAuthenticated: true,
+        user: action.user
       };
-    case actiontypes.AUTH_FAIL:
+    case actiontypes.LOGIN_FAILURE:
       return {
         ...state,
-        error: action.error,
-        loading: false
+        isLoggingIn: false,
+        isAuthenticated: false,
+        authError: action.error
+      };
+    case actiontypes.LOGOUT_REQUEST:
+      return {
+        ...state,
+        isLoggingOut: true,
+        logoutError: false
+      };
+    case actiontypes.LOGOUT_SUCCESS:
+      return {
+        ...state,
+        isLoggingOut: false,
+        isAuthenticated: false,
+        user: {}
+      };
+    case actiontypes.LOGOUT_FAILURE:
+      return {
+        ...state,
+        isLoggingOut: false,
+        logoutError: false
+      };
+    case actiontypes.SIGNUP_FAIL:
+      return {
+        ...state,
+        isSigningUp: false,
+        authError: action.error,
+        isAuthenticated: false
+      };
+    case actiontypes.SIGNUP_SUCCESS:
+      return {
+        ...state,
+        isSigningUp: false,
+        isAuthenticated: true,
+        user: action.user
+      };
+    case actiontypes.VERIFY_REQUEST:
+      return {
+        ...state,
+        isVerifying: true,
+        verifyingError: false
+      };
+    case actiontypes.VERIFY_SUCCESS:
+      return {
+        ...state,
+        isVerifying: false
       };
     default:
       return state;

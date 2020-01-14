@@ -8,13 +8,13 @@ import {
   IAppState
 } from "../../App";
 import { connect } from "react-redux";
-import * as actiontypes from "../../store/actions/types";
+import * as actiontypes from "../../store/actions/notesactiontypes";
 import * as _ from "lodash";
 import {
   getnotes,
   checkednotes,
   deletenotes
-} from "../../store/actions/actions";
+} from "../../store/actions/notesactions";
 import MaterialTable from "../UI/MaterialTable/MaterialTable";
 import MaterialDrawer from "../UI/MaterialDrawer/MaterialDrawer";
 import ConfirmationDialog from "../UI/ConfirmationDialog/ConfirmationDialog";
@@ -105,7 +105,6 @@ class NotesDisplay extends Component<INotesDisplayProps> {
   };
 
   componentDidMount() {
-    const fetchedNotes: INoteArray[] = [];
     getNotes(this.props);
     console.log(this.props.notes);
   }

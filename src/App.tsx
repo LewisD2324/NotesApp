@@ -3,11 +3,15 @@ import "./App.css";
 import Notes from "./containers/Notes/Notes";
 import NotesLogo from "./assets/images/notes-icon-png-14.jpg";
 import NotesDisplay from "./containers/NotesDisplay/NotesDisplay";
-import MaterialToolbar from "./containers/UI/MaterialToolbar/MaterialToolbar";
+import MaterialToolbar from "./containers/UI/AuthToolbar/AuthToolbar";
 import { Router } from "@reach/router";
 import NotesPage from "./containers/NotesPage/NotesPage";
-import SignUpPage from "./containers/SignUpPage/SignUpPage";
-import SignInPage from "./containers/SignInPage/SignInPage";
+import SignInPage from "./containers/AuthPage/AuthPage";
+import MaterialUIToolbar from "./containers/UI/MaterialUIToolBar/MaterialUIToolBar";
+import { Toolbar } from "@material-ui/core";
+import AuthToolbar from "./containers/UI/AuthToolbar/AuthToolbar";
+import AuthPage from "./containers/AuthPage/AuthPage";
+
 export interface INoteArray {
   heading: string;
   text: string;
@@ -27,10 +31,20 @@ export interface NotesState {
 }
 
 export interface AuthState {
-  token: string;
-  userId: string;
-  error: string | null;
-  loading: boolean;
+  // token: string | null;
+  // userId: string | null;
+  // error: string | null;
+  // loading: boolean;
+
+  isLoggingIn: boolean;
+  isLoggingOut: boolean;
+  isVerifying: boolean;
+  authError: string;
+  logoutError: boolean;
+  isAuthenticated: boolean;
+  user: any;
+  verifyingError: boolean;
+  isSigningUp: boolean;
 }
 
 export interface IAppState {
@@ -39,18 +53,13 @@ export interface IAppState {
 }
 class App extends Component {
   render() {
+    //do an isauthenticate mapstate to props here only
     return (
       <div className="App">
-        <header>
-          <MaterialToolbar />
-        </header>
-        <section>
-          <Router>
-            <NotesPage path="/" />
-            <SignUpPage path="/Signup" />
-            <SignInPage path="/Signin" />
-          </Router>
-        </section>
+        <Router>
+          <NotesPage path="/" />
+          <AuthPage path="/Auth" />
+        </Router>
       </div>
     );
   }
