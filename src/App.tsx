@@ -16,6 +16,7 @@ export interface INoteArray {
   heading: string;
   text: string;
   id: string;
+  userid: string;
   isselected: boolean;
 }
 
@@ -43,6 +44,7 @@ export interface AuthState {
   logoutError: boolean;
   isAuthenticated: boolean;
   user: any;
+  userid: string | undefined;
   verifyingError: boolean;
   isSigningUp: boolean;
 }

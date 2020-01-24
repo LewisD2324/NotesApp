@@ -57,8 +57,8 @@ export async function signup(email: string, password: string) {
         .createUserWithEmailAndPassword(email, password);
 
       if (!user) return;
-
-      dispatch(signupSuccess(user));
+      const userid = user.user?.uid;
+      dispatch(signupSuccess(user, userid));
     } catch (error) {
       dispatch(signupFail(error.message));
       console.log(error);
@@ -76,7 +76,9 @@ export async function loginUser(email: string, password: string) {
         .signInWithEmailAndPassword(email, password);
 
       if (!user) return;
-      dispatch(receiveLogin(user));
+
+      const userid = user.user?.uid;
+      dispatch(receiveLogin(user, userid));
     } catch (error) {
       dispatch(loginError(error.message));
       console.log(error);
@@ -104,7 +106,7 @@ export function verifyAuth() {
     dispatch(verifyRequest());
     firebase.auth().onAuthStateChanged(user => {
       if (user !== null) {
-        dispatch(receiveLogin(user));
+        dispatch(receiveLogin(user, user.uid));
       }
       dispatch(verifySuccess());
     });

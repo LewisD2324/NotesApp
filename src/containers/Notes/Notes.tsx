@@ -28,6 +28,7 @@ export interface INotesProps {
   addnotes: any;
   getnotes: any;
   updatenotes: any;
+  userid: string | undefined;
 }
 
 interface INotesShowState {
@@ -45,7 +46,7 @@ class Notes extends Component<INotesProps> {
       this.props.currentnote[0].text != "" &&
       this.props.currentnote[0].heading != ""
     ) {
-      this.props.addnotes(this.props.currentnote);
+      this.props.addnotes(this.props.currentnote, this.props.userid);
     }
   };
 
@@ -63,8 +64,7 @@ class Notes extends Component<INotesProps> {
 
   savenotes = () => {
     if (this.props.notes.find(x => x.id === this.props.currentnote[0].id)) {
-      updatenotes(this.props.currentnote);
-      this.props.getnotes();
+      this.props.updatenotes(this.props.currentnote, this.props.userid);
       this.setState({ show: false });
     }
   };
@@ -116,17 +116,21 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch({ type: actiontypes.SAVE_HEADER_NOTES, updatednote }),
     fetchnotes: (fetchedNotes: INoteArray[]) =>
       dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
-    addnotes: (addednote: ICurrentNoteArray[]) => dispatch(addnotes(addednote)),
-    updatenotes: (updatednote: ICurrentNoteArray[]) =>
-      dispatch(updatenotes(updatednote)),
-    getnotes: () => dispatch(getnotes())
+    addnotes: (addednote: ICurrentNoteArray[], userid: string | undefined) =>
+      dispatch(addnotes(addednote, userid)),
+    updatenotes: (
+      updatednote: ICurrentNoteArray[],
+      userid: string | undefined
+    ) => dispatch(updatenotes(updatednote, userid)),
+    getnotes: (userid: string) => dispatch(getnotes(userid))
   };
 };
 
 const mapStateToProps = (state: IAppState) => {
   return {
     notes: state.notes.items,
-    currentnote: state.notes.currentnote
+    currentnote: state.notes.currentnote,
+    userid: state.auth.userid
   };
 };
 

@@ -25,10 +25,11 @@ export const requestLogin = () => {
   };
 };
 
-export const receiveLogin = (user: any) => {
+export const receiveLogin = (user: any, userid: string | undefined) => {
   return {
     type: LOGIN_SUCCESS,
-    user
+    user,
+    userid
   };
 };
 
@@ -69,10 +70,14 @@ export const verifySuccess = () => {
   };
 };
 
-export function signupSuccess(user: any): IActionSignUpSuccess {
+export function signupSuccess(
+  user: any,
+  userid: string | undefined
+): IActionSignUpSuccess {
   return {
     type: SIGNUP_SUCCESS,
-    user
+    user,
+    userid
   };
 }
 
@@ -109,6 +114,7 @@ export interface IActionLogInRequest extends Action {
 export interface IActionLogInSuccess extends Action {
   type: "LOGIN_SUCCESS";
   user: any;
+  userid: any;
 }
 
 export interface IActionLogInFailure extends Action {
@@ -138,6 +144,7 @@ export interface IActionVerifySuccess extends Action {
 export interface IActionSignUpSuccess extends Action {
   type: "SIGNUP_SUCCESS";
   user: any;
+  userid: string | undefined;
 }
 export interface IActionSignUpFail extends Action {
   type: "SIGNUP_FAIL";

@@ -26,6 +26,7 @@ export interface INotesDisplayProps {
   checkednotes: any;
   currentnote: ICurrentNoteArray[];
   deletenotes: any;
+  userid: string | undefined;
 }
 
 interface INotesDisplayState {
@@ -33,7 +34,7 @@ interface INotesDisplayState {
 }
 
 export function getNotes(props: INotesDisplayProps) {
-  props.getnotes();
+  props.getnotes(props.userid);
 }
 
 class NotesDisplay extends Component<INotesDisplayProps> {
@@ -53,31 +54,6 @@ class NotesDisplay extends Component<INotesDisplayProps> {
     console.log(this.props.currentnote);
   };
 
-  // shouldComponentUpdate(nextProps: INotesDisplayProps) {
-  //   return nextProps.notes !== this.props.notes;
-  // }
-
-  // componentDidUpdate(prevProps: INotesDisplayProps) {
-  //   if (prevProps.notes.length !== this.props.notes.length) {
-  //     //getNotes(this.props);
-  //     console.log("getting notes not equal length");
-  //     return;
-  //   }
-
-  //   _.orderBy(prevProps.notes, ["id"]).forEach(note => {
-  //     _.orderBy(this.props.notes, ["id"]).forEach(n => {
-  //       if (!_.isEqual(note, n)) {
-  //         //getNotes(this.props);
-  //         console.log("getting notes");
-  //         return;
-  //       }
-  //     });
-  //   });
-
-  //   //this.props.notes.xorWith(prevProps.notes, _.isEqual).isEmpty();
-  //   //if (this.props.notes !== prevProps.notes) {
-  // }
-
   onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     const id = e.target.value;
@@ -91,7 +67,7 @@ class NotesDisplay extends Component<INotesDisplayProps> {
     const deletednotes = this.props.notes.filter(
       note => note.isselected == true
     );
-    this.props.deletenotes(deletednotes);
+    this.props.deletenotes(deletednotes, this.props.userid);
 
     this.setState({ show: false });
   };
@@ -106,7 +82,6 @@ class NotesDisplay extends Component<INotesDisplayProps> {
 
   componentDidMount() {
     getNotes(this.props);
-    console.log(this.props.notes);
   }
 
   render() {
@@ -139,17 +114,19 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch({ type: actiontypes.SELECT_NOTES, id }),
     fetchnotes: (fetchedNotes: INoteArray[]) =>
       dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
-    getnotes: () => dispatch(getnotes()),
+    getnotes: (userid: string | undefined) => dispatch(getnotes(userid)),
     checkednotes: (selected: boolean, id: string) =>
       dispatch({ type: actiontypes.CHECKED_NOTES, selected, id }),
-    deletenotes: (notes: INoteArray[]) => dispatch(deletenotes(notes))
+    deletenotes: (notes: INoteArray[], userid: string | undefined) =>
+      dispatch(deletenotes(notes, userid))
   };
 };
 
 const mapStateToProps = (state: IAppState) => {
   return {
     notes: state.notes.items,
-    currentnote: state.notes.currentnote
+    currentnote: state.notes.currentnote,
+    userid: state.auth.userid
   };
 };
 

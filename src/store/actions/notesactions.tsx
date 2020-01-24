@@ -17,7 +17,6 @@ import {
 import { ThunkDispatch, ThunkAction } from "redux-thunk";
 import { AnyAction } from "redux";
 import { getNotes } from "../../containers/NotesDisplay/NotesDisplay";
-import { functionExpression } from "@babel/types";
 import firebase from "../../Firebase";
 //action creators
 export function clearnotes(): IActionClearNotes {
@@ -40,7 +39,7 @@ export function saveheaderNotes(updatednote: string): IActionSaveHeaderNotes {
   };
 }
 
-export function deletenotes(notes: INoteArray[]) {
+export function deletenotes(notes: INoteArray[], userid: string | undefined) {
   return (dispatch: any) => {
     const db = firebase.firestore();
 
@@ -53,7 +52,7 @@ export function deletenotes(notes: INoteArray[]) {
         });
     });
 
-    dispatch(getnotes());
+    dispatch(getnotes(userid));
     dispatch(clearnotes());
   };
 }
@@ -82,7 +81,7 @@ export function fetchednotes(fetchedNotes: INoteArray[]): IActionFetchNotes {
   };
 }
 
-export function getnotes() {
+export function getnotes(userid: string | undefined) {
   return function(dispatch: any) {
     const db = firebase.firestore();
 
@@ -95,11 +94,14 @@ export function getnotes() {
             heading: doc.get("heading"),
             id: doc.id,
             text: doc.get("text"),
-            isselected: false
+            isselected: false,
+            userid: doc.get("userid")
           });
         });
 
-        dispatch(fetchednotes(notes));
+        const usernotes = notes.filter(n => n.userid == userid);
+
+        dispatch(fetchednotes(usernotes));
       })
       .catch((err: Error) => {
         console.log("Error - Cannot Load Notes: ", err);
@@ -107,16 +109,20 @@ export function getnotes() {
   };
 }
 
-export function addnotes(addednote: ICurrentNoteArray[]) {
+export function addnotes(
+  addednote: ICurrentNoteArray[],
+  userid: string | undefined
+) {
   return function(dispatch: any) {
     const db = firebase.firestore();
 
     db.collection("Notes")
       .add({
         heading: addednote[0].heading,
-        text: addednote[0].text
+        text: addednote[0].text,
+        userid: userid
       })
-      .then(dispatch(getnotes()))
+      .then(dispatch(getnotes(userid)))
       .then(dispatch(clearnotes()))
       .catch((err: Error) => {
         console.log("Could not add note: ", err);
@@ -124,21 +130,23 @@ export function addnotes(addednote: ICurrentNoteArray[]) {
   };
 }
 
-export function updatenotes(updatednote: ICurrentNoteArray[]) {
-  // return (dispatch: any) => {
-  const db = firebase.firestore();
+export function updatenotes(
+  updatednote: ICurrentNoteArray[],
+  userid: string | undefined
+) {
+  return function(dispatch: any) {
+    const db = firebase.firestore();
+    console.log(userid);
 
-  db.collection("Notes")
-    .doc(updatednote[0].id)
-    .update({
-      heading: updatednote[0].heading,
-      text: updatednote[0].text
-    })
-    .catch((err: Error) => {
-      console.log("Could not update note: ", err);
-    });
+    db.collection("Notes")
+      .doc(updatednote[0].id)
+      .update({
+        heading: updatednote[0].heading,
+        text: updatednote[0].text
+      })
+      .then(dispatch(getnotes(userid)))
+      .catch((err: Error) => {
+        console.log("Could not update note: ", err);
+      });
+  };
 }
-
-///////////////////////
-
-//https://heartbeat.fritz.ai/how-to-build-an-email-authentication-app-with-firebase-firestore-and-react-native-a18a8ba78574

@@ -11,7 +11,8 @@ const initialState: AuthState = {
   logoutError: false,
   isAuthenticated: false,
   verifyingError: false,
-  user: {}
+  user: {},
+  userid: ""
 };
 
 export function reducer(state = initialState, action: AuthActions): AuthState {
@@ -48,11 +49,13 @@ export function reducer(state = initialState, action: AuthActions): AuthState {
         isLoggingIn: true
       };
     case actiontypes.LOGIN_SUCCESS:
+      console.log(action.user);
       return {
         ...state,
         isLoggingIn: false,
         isAuthenticated: true,
-        user: action.user
+        user: action.user,
+        userid: action.userid
       };
     case actiontypes.LOGIN_FAILURE:
       return {
@@ -65,14 +68,16 @@ export function reducer(state = initialState, action: AuthActions): AuthState {
       return {
         ...state,
         isLoggingOut: true,
-        logoutError: false
+        logoutError: false,
+        user: {}
       };
     case actiontypes.LOGOUT_SUCCESS:
       return {
         ...state,
         isLoggingOut: false,
         isAuthenticated: false,
-        user: {}
+        user: {},
+        userid: ""
       };
     case actiontypes.LOGOUT_FAILURE:
       return {
@@ -92,7 +97,8 @@ export function reducer(state = initialState, action: AuthActions): AuthState {
         ...state,
         isSigningUp: false,
         isAuthenticated: true,
-        user: action.user
+        user: action.user,
+        userid: action.userid
       };
     case actiontypes.VERIFY_REQUEST:
       return {

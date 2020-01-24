@@ -3,10 +3,10 @@ import * as actionTypes from "../actions/notesactiontypes";
 import { NoteActions } from "../actions/notesactiontypes";
 
 const notesarray = [
-  { id: "0", heading: "test", text: "testing", isselected: false }
+  { id: "", heading: "", text: "", isselected: false, userid: "" }
 ];
 
-const currentnotesarray = [{ id: "0", heading: "test", text: "test" }];
+const currentnotesarray = [{ id: "", heading: "", text: "" }];
 
 const initialState: NotesState = {
   items: notesarray,
