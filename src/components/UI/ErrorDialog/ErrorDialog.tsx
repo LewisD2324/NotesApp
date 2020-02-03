@@ -8,29 +8,24 @@ import {
 } from "@material-ui/core";
 import React from "react";
 
-export interface IConfirmationDialogProps {
+export interface IErrorDialogProps {
   open: boolean;
   title: any;
-  //variant: any;
   description: any;
-  onSubmit: any;
   onClose: any;
 }
 
-const ConfirmationDialog = (props: IConfirmationDialogProps) => (
+const ErrorDialog: React.FC<IErrorDialogProps> = (props: IErrorDialogProps) => (
   <Dialog open={props.open}>
     <DialogTitle>{props.title}</DialogTitle>
     <DialogContent>
       <DialogContentText>{props.description}</DialogContentText>
     </DialogContent>
     <DialogActions>
-      <Button color="primary" onClick={props.onSubmit}>
-        YES
-      </Button>
       <Button color="primary" onClick={props.onClose} autoFocus>
-        CANCEL
+        Close
       </Button>
     </DialogActions>
   </Dialog>
 );
-export default ConfirmationDialog;
+export default ErrorDialog;

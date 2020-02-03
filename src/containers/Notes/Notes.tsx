@@ -1,137 +1,106 @@
-import React, { Fragment, Component } from "react";
-import NotesToolBar from "../../components/NotesToolBar/NotesToolBar";
+import React, { useState } from "react";
+import NotesToolBar from "../../components/NotesControls/NotesControls";
 import Noting from "../../components/Noting/Noting";
-import * as actiontypes from "../../store/actions/notesactiontypes";
-import {
-  NotesState,
-  ICurrentNoteArray,
-  INoteArray,
-  IAppState
-} from "../../App";
-import { connect } from "react-redux";
-import {
-  addnotes,
-  updatenotes,
-  getnotes
-} from "../../store/actions/notesactions";
-import ConfirmationDialog from "../UI/ConfirmationDialog/ConfirmationDialog";
-import { getNotes } from "../NotesDisplay/NotesDisplay";
-export interface INotesProps {
-  notes: INoteArray[];
+import { NotesActionTypeKeys } from "../../store/actions/notes/notesActionTypeKeys";
+import { ICurrentNoteArray } from "../../models/state/notesState";
+import { IAppState } from "../../models/state/appState";
+import { useDispatch, useSelector } from "react-redux";
+import * as actions from "../../store/actions/notes/notesActions";
+import ConfirmationDialog from "../../components/UI/ConfirmationDialog/ConfirmationDialog";
+import ErrorDialog from "../../components/UI/ErrorDialog/ErrorDialog";
 
-  currentnote: ICurrentNoteArray[];
+const Notes: React.FC = () => {
+  const dispatch = useDispatch();
+  const clearnotes = () => dispatch({ type: NotesActionTypeKeys.CLEAR_NOTES });
+  const savetextNotes = (updatednote: string) =>
+    dispatch({ type: NotesActionTypeKeys.ENTER_TEXT_NOTES, updatednote });
+  const saveheaderNotes = (updatednote: string) =>
+    dispatch({ type: NotesActionTypeKeys.ENTER_HEADER_NOTES, updatednote });
 
-  clearnotes: any;
-  savetextNotes: any;
-  saveheaderNotes: any;
-  fetchnotes: any;
-  addnotes: any;
-  getnotes: any;
-  updatenotes: any;
-  userid: string | undefined;
-}
+  const addnotes = (
+    addednote: ICurrentNoteArray[],
+    userid: string | undefined
+  ) => dispatch(actions.addNotes(addednote, userid));
+  const updatenotes = (
+    updatednote: ICurrentNoteArray[],
+    userid: string | undefined
+  ) => dispatch(actions.updateNotes(updatednote, userid));
 
-interface INotesShowState {
-  show: boolean;
-}
+  const closeerror = () =>
+    dispatch({ type: NotesActionTypeKeys.CLOSE_ERROR_DIALOG });
 
-class Notes extends Component<INotesProps> {
-  state: INotesShowState = {
-    show: false
-  };
+  const notes = useSelector((state: IAppState) => state.notes.items);
+  const currentnote = useSelector(
+    (state: IAppState) => state.notes.currentnote
+  );
+  const userid = useSelector((state: IAppState) => state.auth.userid);
+  const noteserror = useSelector(
+    (state: IAppState) => state.notes.errormessage
+  );
+  const showerror = useSelector((state: IAppState) => state.notes.isError);
+  const [show, setshow] = useState<boolean>(false);
 
-  addNotes = () => {
-    //display alert if notes are empty
-    if (
-      this.props.currentnote[0].text != "" &&
-      this.props.currentnote[0].heading != ""
-    ) {
-      this.props.addnotes(this.props.currentnote, this.props.userid);
+  const addNotes = () => {
+    if (currentnote[0].text !== "" && currentnote[0].heading !== "") {
+      addnotes(currentnote, userid);
     }
   };
 
-  updatetext = (changed: React.ChangeEvent<HTMLInputElement>) => {
-    const updatednote = changed.target.value;
-
-    this.props.savetextNotes(updatednote);
+  const enterText = (changed: React.ChangeEvent<HTMLInputElement>) => {
+    savetextNotes(changed.target.value);
   };
 
-  updateheader = (changed: React.ChangeEvent<HTMLInputElement>) => {
-    const updatednote = changed.target.value;
-
-    this.props.saveheaderNotes(updatednote);
+  const enterHeader = (changed: React.ChangeEvent<HTMLInputElement>) => {
+    saveheaderNotes(changed.target.value);
   };
 
-  savenotes = () => {
-    if (this.props.notes.find(x => x.id === this.props.currentnote[0].id)) {
-      this.props.updatenotes(this.props.currentnote, this.props.userid);
-      this.setState({ show: false });
+  const savenotes = () => {
+    if (notes.find(x => x.id === currentnote[0].id)) {
+      updatenotes(currentnote, userid);
+      setshow(false);
     }
   };
 
-  OpenModel = () => {
-    this.setState({ show: true });
+  const OpenModel = () => {
+    setshow(true);
   };
 
-  CloseModel = () => {
-    this.setState({ show: false });
+  const CloseModel = () => {
+    setshow(false);
   };
 
-  render() {
-    return (
-      <div>
-        <Fragment>
-          {this.state.show ? (
-            <ConfirmationDialog
-              open={this.state.show}
-              title={"Save"}
-              description={"Are you sure you want to overwrite this note?"}
-              onSubmit={this.savenotes}
-              onClose={this.CloseModel}
-            />
-          ) : null}
-          <NotesToolBar
-            onAdd={this.addNotes}
-            onClear={this.props.clearnotes}
-            onSave={this.OpenModel}
-          />
-          <Noting
-            textchanged={this.updatetext}
-            headerchanged={this.updateheader}
-            textvalue={this.props.currentnote[0].text}
-            headervalue={this.props.currentnote[0].heading}
-          />
-        </Fragment>
-      </div>
-    );
-  }
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    clearnotes: () => dispatch({ type: actiontypes.CLEAR_NOTES }),
-    savetextNotes: (updatednote: string) =>
-      dispatch({ type: actiontypes.SAVE_TEXT_NOTES, updatednote }),
-    saveheaderNotes: (updatednote: string) =>
-      dispatch({ type: actiontypes.SAVE_HEADER_NOTES, updatednote }),
-    fetchnotes: (fetchedNotes: INoteArray[]) =>
-      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
-    addnotes: (addednote: ICurrentNoteArray[], userid: string | undefined) =>
-      dispatch(addnotes(addednote, userid)),
-    updatenotes: (
-      updatednote: ICurrentNoteArray[],
-      userid: string | undefined
-    ) => dispatch(updatenotes(updatednote, userid)),
-    getnotes: (userid: string) => dispatch(getnotes(userid))
+  const CloseErrorModel = () => {
+    closeerror();
   };
+
+  return (
+    <div>
+      {show ? (
+        <ConfirmationDialog
+          open={show}
+          title={"Save"}
+          description={"Are you sure you want to overwrite this note?"}
+          onSubmit={savenotes}
+          onClose={CloseModel}
+        />
+      ) : null}
+      {showerror ? (
+        <ErrorDialog
+          open={showerror}
+          title={"Error"}
+          description={noteserror}
+          onClose={CloseErrorModel}
+        />
+      ) : null}
+      <NotesToolBar onAdd={addNotes} onClear={clearnotes} onSave={OpenModel} />
+      <Noting
+        textchanged={enterText}
+        headerchanged={enterHeader}
+        textvalue={currentnote[0].text}
+        headervalue={currentnote[0].heading}
+      />
+    </div>
+  );
 };
 
-const mapStateToProps = (state: IAppState) => {
-  return {
-    notes: state.notes.items,
-    currentnote: state.notes.currentnote,
-    userid: state.auth.userid
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Notes);
+export default Notes;

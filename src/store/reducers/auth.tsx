@@ -1,6 +1,6 @@
-import * as actiontypes from "../actions/authactiontypes";
-import { AuthState } from "../../App";
-import { AuthActions } from "../actions/authactiontypes";
+import { AuthActionTypeKeys } from "../actions/auth/authActionTypeKeys";
+import { AuthState } from "../../models/state/authState";
+import { AuthActions } from "../actions/auth/authActiontypes";
 
 const initialState: AuthState = {
   isLoggingIn: false,
@@ -9,46 +9,22 @@ const initialState: AuthState = {
   isVerifying: false,
   authError: "",
   logoutError: false,
-  isAuthenticated: false,
   verifyingError: false,
+  isAuthenticated: false,
   user: {},
-  userid: ""
+  userid: "",
+  email: "",
+  password: ""
 };
 
 export function reducer(state = initialState, action: AuthActions): AuthState {
   switch (action.type) {
-    // case actiontypes.AUTH_START:
-    //   return {
-    //     ...state,
-    //     error: null,
-    //     loading: true
-    //   };
-    // case actiontypes.AUTH_SUCCESS:
-    //   return {
-    //     ...state,
-    //     token: action.idToken,
-    //     userId: action.userId,
-    //     error: null,
-    //     loading: false
-    //   };
-    // case actiontypes.AUTH_FAIL:
-    //   return {
-    //     ...state,
-    //     error: action.error,
-    //     loading: false
-    //   };
-    //   case actiontypes.LOG_OUT:
-    //   return {
-    //     ...state,
-    //     token: null,
-    //     userId: null
-    //   }
-    case actiontypes.LOGIN_REQUEST:
+    case AuthActionTypeKeys.SIGNIN_REQUEST:
       return {
         ...state,
         isLoggingIn: true
       };
-    case actiontypes.LOGIN_SUCCESS:
+    case AuthActionTypeKeys.SIGNIN_SUCCESS:
       console.log(action.user);
       return {
         ...state,
@@ -57,42 +33,47 @@ export function reducer(state = initialState, action: AuthActions): AuthState {
         user: action.user,
         userid: action.userid
       };
-    case actiontypes.LOGIN_FAILURE:
+    case AuthActionTypeKeys.SIGNIN_FAILURE:
       return {
         ...state,
         isLoggingIn: false,
         isAuthenticated: false,
         authError: action.error
       };
-    case actiontypes.LOGOUT_REQUEST:
+    case AuthActionTypeKeys.SIGNOUT_REQUEST:
       return {
         ...state,
         isLoggingOut: true,
-        logoutError: false,
-        user: {}
+        logoutError: false
       };
-    case actiontypes.LOGOUT_SUCCESS:
+    case AuthActionTypeKeys.SIGNOUT_SUCCESS:
       return {
         ...state,
         isLoggingOut: false,
         isAuthenticated: false,
-        user: {},
         userid: ""
       };
-    case actiontypes.LOGOUT_FAILURE:
+    case AuthActionTypeKeys.SIGNOUT_FAILURE:
       return {
         ...state,
         isLoggingOut: false,
-        logoutError: false
+        logoutError: true
       };
-    case actiontypes.SIGNUP_FAIL:
+    case AuthActionTypeKeys.SIGNUP_REQUEST:
+      return {
+        ...state,
+        isSigningUp: true,
+        authError: "",
+        isAuthenticated: false
+      };
+    case AuthActionTypeKeys.SIGNUP_FAILURE:
       return {
         ...state,
         isSigningUp: false,
         authError: action.error,
         isAuthenticated: false
       };
-    case actiontypes.SIGNUP_SUCCESS:
+    case AuthActionTypeKeys.SIGNUP_SUCCESS:
       return {
         ...state,
         isSigningUp: false,
@@ -100,16 +81,32 @@ export function reducer(state = initialState, action: AuthActions): AuthState {
         user: action.user,
         userid: action.userid
       };
-    case actiontypes.VERIFY_REQUEST:
+    case AuthActionTypeKeys.VERIFY_REQUEST:
       return {
         ...state,
         isVerifying: true,
         verifyingError: false
       };
-    case actiontypes.VERIFY_SUCCESS:
+    case AuthActionTypeKeys.VERIFY_SUCCESS:
       return {
         ...state,
-        isVerifying: false
+        isVerifying: false,
+        verifyingError: false
+      };
+    case AuthActionTypeKeys.VERIFY_FAILURE:
+      return {
+        ...state,
+        verifyingError: true
+      };
+    case AuthActionTypeKeys.ENTER_EMAIL:
+      return {
+        ...state,
+        email: action.email
+      };
+    case AuthActionTypeKeys.ENTER_PASSWORD:
+      return {
+        ...state,
+        password: action.password
       };
     default:
       return state;

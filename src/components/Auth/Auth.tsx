@@ -1,7 +1,6 @@
 import React from "react";
 import TextField from "@material-ui/core/TextField";
 import {
-  Box,
   Button,
   Container,
   Paper,
@@ -13,12 +12,12 @@ import classes from "./Auth.module.css";
 interface ISignUpProps {
   handlePasswordChange: any;
   handleEmailChange: any;
-  authenticate: any;
+  authenticate: React.MouseEventHandler;
   authmethod: string;
   errormessage: string;
 }
 
-const Auth = (props: ISignUpProps) => (
+const Auth: React.FC<ISignUpProps> = (props: ISignUpProps) => (
   <Container component="main" maxWidth="xs">
     <Paper className={classes.Paper}>
       <Avatar className={classes.Avatar}></Avatar>
@@ -54,31 +53,12 @@ const Auth = (props: ISignUpProps) => (
         fullWidth
         variant="contained"
         color="primary"
-        //     className={classes.submit}
         onClick={props.authenticate}
       >
         SUBMIT
       </Button>
     </Paper>
   </Container>
-
-  // <Box>
-  //   <TextField
-  //     id="outlined-basic"
-  //     label="Email"
-  //     type="email"
-  //     variant="outlined"
-  //     onChange={props.email}
-  //   />
-  //   <TextField
-  //     id="outlined-basic"
-  //     label="Password"
-  //     type="password"
-  //     variant="outlined"
-  //     onChange={props.password}
-  //   />
-  //   <Button onClick={props.authenticate}>SUBMIT</Button>
-  // </Box>
 );
 
 export default Auth;

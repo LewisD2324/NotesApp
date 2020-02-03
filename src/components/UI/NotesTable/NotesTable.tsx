@@ -1,11 +1,4 @@
 import React from "react";
-import clsx from "clsx";
-import {
-  createStyles,
-  lighten,
-  makeStyles,
-  Theme
-} from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -19,13 +12,9 @@ import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
-import FilterListIcon from "@material-ui/icons/FilterList";
-import classes from "./Material.module.css";
-import { INoteArray, NotesState } from "../../../App";
-import { connect } from "react-redux";
+import classes from "./NotesTable.module.css";
+import { INoteArray } from "../../../models/state/notesState";
 
 function desc<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -193,7 +182,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   );
 };
 
-interface IMaterialTableProps {
+interface INotesTableProps {
   notes: INoteArray[];
   isChecked: any;
   selectnotes: any;
@@ -201,12 +190,12 @@ interface IMaterialTableProps {
   // id: any;
 }
 
-const MaterialTable = (props: IMaterialTableProps) => {
+const NotesTable: React.FC<INotesTableProps> = (props: INotesTableProps) => {
   const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState<keyof INoteArray>("id");
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
+  const [dense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (
@@ -243,7 +232,7 @@ const MaterialTable = (props: IMaterialTableProps) => {
     Math.min(rowsPerPage, props.notes.length - page * rowsPerPage);
 
   return (
-    <div className={classes.MaterialTable}>
+    <div className={classes.NotesTable}>
       <Paper>
         <EnhancedTableToolbar
           numSelected={selected.length}
@@ -318,4 +307,4 @@ const MaterialTable = (props: IMaterialTableProps) => {
   );
 };
 
-export default MaterialTable;
+export default NotesTable;

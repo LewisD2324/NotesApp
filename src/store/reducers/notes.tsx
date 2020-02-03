@@ -1,6 +1,6 @@
-import { NotesState } from "../../App";
-import * as actionTypes from "../actions/notesactiontypes";
-import { NoteActions } from "../actions/notesactiontypes";
+import { NotesState } from "../../models/state/notesState";
+import { NoteActions } from "../actions/notes/notesActionTypes";
+import { NotesActionTypeKeys } from "../actions/notes/notesActionTypeKeys";
 
 const notesarray = [
   { id: "", heading: "", text: "", isselected: false, userid: "" }
@@ -10,7 +10,9 @@ const currentnotesarray = [{ id: "", heading: "", text: "" }];
 
 const initialState: NotesState = {
   items: notesarray,
-  currentnote: currentnotesarray
+  currentnote: currentnotesarray,
+  errormessage: "",
+  isError: false
 };
 
 const notes = (
@@ -19,7 +21,7 @@ const notes = (
 ): NotesState => {
   console.log({ state, action });
   switch (action.type) {
-    case actionTypes.CLEAR_NOTES:
+    case NotesActionTypeKeys.CLEAR_NOTES:
       console.log({ state, action });
       const newclearnotesState = { ...state };
       newclearnotesState.currentnote = [
@@ -30,10 +32,9 @@ const notes = (
         }
       ];
       return newclearnotesState;
-    case actionTypes.SAVE_TEXT_NOTES:
+    case NotesActionTypeKeys.ENTER_TEXT_NOTES:
       console.log({ state, action });
       const newupdatedtextState = { ...state };
-      console.log(newupdatedtextState);
       newupdatedtextState.currentnote = [
         {
           id: newupdatedtextState.currentnote[0].id,
@@ -42,7 +43,7 @@ const notes = (
         }
       ];
       return newupdatedtextState;
-    case actionTypes.SAVE_HEADER_NOTES:
+    case NotesActionTypeKeys.ENTER_HEADER_NOTES:
       console.log({ state, action });
       const newupdatedheaderState = { ...state };
       newupdatedheaderState.currentnote = [
@@ -53,9 +54,9 @@ const notes = (
         }
       ];
       return newupdatedheaderState;
-    case actionTypes.SELECT_NOTES:
+    case NotesActionTypeKeys.SELECT_NOTES:
       console.log({ state, action });
-      const selectednote = state.items.filter(x => x.id == action.id);
+      const selectednote = state.items.filter(x => x.id === action.id);
       const newState = { ...state };
       newState.currentnote = [
         {
@@ -64,23 +65,36 @@ const notes = (
           heading: selectednote[0].heading
         }
       ];
-
       return newState;
 
-    case actionTypes.CHECKED_NOTES:
+    case NotesActionTypeKeys.CHECKED_NOTES:
       console.log({ state, action });
-
       return {
         ...state,
         items: state.items.map(note =>
-          note.id == action.id ? { ...note, isselected: action.selected } : note
+          note.id === action.id
+            ? { ...note, isselected: action.selected }
+            : note
         )
       };
-    case actionTypes.FETCH_NOTES:
+    case NotesActionTypeKeys.FETCH_NOTES:
       console.log({ state, action });
       return {
         ...state,
         items: action.fetchedNotes
+      };
+    case NotesActionTypeKeys.ERROR_NOTES:
+      console.log({ state, action });
+      return {
+        ...state,
+        errormessage: action.error
+      };
+    case NotesActionTypeKeys.CLOSE_ERROR_DIALOG:
+      console.log({ state, action });
+      return {
+        ...state,
+        errormessage: "",
+        isError: false
       };
 
     default:

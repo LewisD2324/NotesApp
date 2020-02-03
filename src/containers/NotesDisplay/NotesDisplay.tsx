@@ -1,133 +1,93 @@
-import React, { Fragment, Component } from "react";
-import SearchBar from "../../components/SearchBar/SearchBar";
-import NotesList from "../../components/NotesList/NotesList";
-import {
-  INoteArray,
-  NotesState,
-  ICurrentNoteArray,
-  IAppState
-} from "../../App";
-import { connect } from "react-redux";
-import * as actiontypes from "../../store/actions/notesactiontypes";
-import * as _ from "lodash";
-import {
-  getnotes,
-  checkednotes,
-  deletenotes
-} from "../../store/actions/notesactions";
-import MaterialTable from "../UI/MaterialTable/MaterialTable";
-import MaterialDrawer from "../UI/MaterialDrawer/MaterialDrawer";
-import ConfirmationDialog from "../UI/ConfirmationDialog/ConfirmationDialog";
-export interface INotesDisplayProps {
-  notes: INoteArray[];
-  selectnotes: any;
-  fetchnotes: any;
-  getnotes: any;
-  checkednotes: any;
-  currentnote: ICurrentNoteArray[];
-  deletenotes: any;
-  userid: string | undefined;
-}
+import React, { Fragment, useState, useEffect } from "react";
+import { INoteArray } from "../../models/state/notesState";
+import { IAppState } from "../../models/state/appState";
+import { useDispatch, useSelector } from "react-redux";
+import { NotesActionTypeKeys } from "../../store/actions/notes/notesActionTypeKeys";
+import * as actions from "../../store/actions/notes/notesActions";
+import NotesTable from "../../components/UI/NotesTable/NotesTable";
+import ConfirmationDialog from "../../components/UI/ConfirmationDialog/ConfirmationDialog";
+import ErrorDialog from "../../components/UI/ErrorDialog/ErrorDialog";
+const NotesDisplay: React.FC = () => {
+  const dispatch = useDispatch();
 
-interface INotesDisplayState {
-  show: boolean;
-}
+  const selectnotes = (id: string) =>
+    dispatch({ type: NotesActionTypeKeys.SELECT_NOTES, id });
+  const checkednotes = (selected: boolean, id: string) =>
+    dispatch({ type: NotesActionTypeKeys.CHECKED_NOTES, selected, id });
+  const deletenotes = (notes: INoteArray[], userid: string | undefined) =>
+    dispatch(actions.deleteNotes(notes, userid));
+  const getnotes = (userid: string | undefined) =>
+    dispatch(actions.getNotes(userid));
+  const closeerror = () =>
+    dispatch({ type: NotesActionTypeKeys.CLOSE_ERROR_DIALOG });
+  const notes = useSelector((state: IAppState) => state.notes.items);
 
-export function getNotes(props: INotesDisplayProps) {
-  props.getnotes(props.userid);
-}
+  const userid = useSelector((state: IAppState) => state.auth.userid);
+  const noteserror = useSelector(
+    (state: IAppState) => state.notes.errormessage
+  );
+  const showerror = useSelector((state: IAppState) => state.notes.isError);
 
-class NotesDisplay extends Component<INotesDisplayProps> {
-  // constructor(props: INotesDisplayProps) {
-  //   super(props);
-  //   this.state = {
-  //     show: true
-  //   };
-  // }
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
-  state: INotesDisplayState = {
-    show: false
-  };
-  selectNotes = (id: string) => {
-    this.props.selectnotes(id);
-
-    console.log(this.props.currentnote);
+  const selectNotes = (id: string) => {
+    selectnotes(id);
   };
 
-  onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    const id = e.target.value;
-
-    console.log(checked, id);
-    this.props.checkednotes(checked, id);
-    console.log(this.props.notes);
+  const onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
+    checkednotes(e.target.checked, e.target.value);
   };
 
-  onDeleteNotes = () => {
-    const deletednotes = this.props.notes.filter(
-      note => note.isselected == true
-    );
-    this.props.deletenotes(deletednotes, this.props.userid);
+  const onDeleteNotes = () => {
+    const deletednotes = notes.filter(note => note.isselected === true);
+    deletenotes(deletednotes, userid);
 
-    this.setState({ show: false });
+    setShowConfirm(false);
   };
 
-  OpenModel = () => {
-    this.setState({ show: true });
+  const OpenConfirmModel = () => {
+    setShowConfirm(true);
   };
 
-  CloseModel = () => {
-    this.setState({ show: false });
+  const CloseConfirmModel = () => {
+    setShowConfirm(false);
   };
 
-  componentDidMount() {
-    getNotes(this.props);
-  }
+  const CloseErrorModel = () => {
+    closeerror();
+  };
 
-  render() {
-    return (
-      <Fragment>
-        {this.state.show ? (
-          <ConfirmationDialog
-            open={this.state.show}
-            title={"Delete"}
-            description={"Are you sure you want to Delete?"}
-            onSubmit={this.onDeleteNotes}
-            onClose={this.CloseModel}
-          />
-        ) : null}
-        {/* <SearchBar /> */}
-        <MaterialTable
-          notes={this.props.notes}
-          selectnotes={this.selectNotes}
-          isChecked={this.onChecked}
-          deletenotes={this.OpenModel}
+  useEffect(() => {
+    getnotes(userid);
+  }, []);
+
+  return (
+    <Fragment>
+      {showConfirm ? (
+        <ConfirmationDialog
+          open={showConfirm}
+          title={"Delete"}
+          description={"Are you sure you want to Delete?"}
+          onSubmit={onDeleteNotes}
+          onClose={CloseConfirmModel}
         />
-      </Fragment>
-    );
-  }
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    selectnotes: (id: string) =>
-      dispatch({ type: actiontypes.SELECT_NOTES, id }),
-    fetchnotes: (fetchedNotes: INoteArray[]) =>
-      dispatch({ type: actiontypes.FETCH_NOTES, fetchedNotes }),
-    getnotes: (userid: string | undefined) => dispatch(getnotes(userid)),
-    checkednotes: (selected: boolean, id: string) =>
-      dispatch({ type: actiontypes.CHECKED_NOTES, selected, id }),
-    deletenotes: (notes: INoteArray[], userid: string | undefined) =>
-      dispatch(deletenotes(notes, userid))
-  };
+      ) : null}
+      {showerror ? (
+        <ErrorDialog
+          open={showerror}
+          title={"Error"}
+          description={noteserror}
+          onClose={CloseErrorModel}
+        />
+      ) : null}
+      <NotesTable
+        notes={notes}
+        selectnotes={selectNotes}
+        isChecked={onChecked}
+        deletenotes={OpenConfirmModel}
+      />
+    </Fragment>
+  );
 };
 
-const mapStateToProps = (state: IAppState) => {
-  return {
-    notes: state.notes.items,
-    currentnote: state.notes.currentnote,
-    userid: state.auth.userid
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(NotesDisplay);
+export default NotesDisplay;

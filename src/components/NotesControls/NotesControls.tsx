@@ -1,17 +1,18 @@
 import React from "react";
-import classes from "./NotesToolBar.module.css";
+import classes from "./NotesControls.module.css";
 import { Button, Fab } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import EditIcon from "@material-ui/icons/Edit";
 
-interface INotesToolBarProps {
+interface INotesControlsProps {
   onAdd(): void;
   onClear(): void;
-
   onSave(): void;
 }
 
-const NotesToolBar = (props: INotesToolBarProps) => (
+const NotesControls: React.FC<INotesControlsProps> = (
+  props: INotesControlsProps
+) => (
   <div className={classes.NotesToolBar}>
     <Fab
       color="primary"
@@ -33,4 +34,4 @@ const NotesToolBar = (props: INotesToolBarProps) => (
   </div>
 );
 
-export default NotesToolBar;
+export default NotesControls;

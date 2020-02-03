@@ -1,26 +1,21 @@
-import React, { Component } from "react";
+import React from "react";
 import classes from "./NotesList.module.css";
-import { INoteArray, NotesState } from "../../App";
+import { INoteArray } from "../../models/state/notesState";
 import {
-  createStyles,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableRow,
-  Theme,
-  withStyles,
-  WithStyles
+  TableRow
 } from "@material-ui/core";
 
 interface INotesListProps {
   notes: INoteArray[];
-  //selectnotes()
-  selectnotes: any;
+  selectnotes: (id: string) => void;
 }
 
-const NotesList = (props: INotesListProps) => {
+const NotesList: React.FC<INotesListProps> = (props: INotesListProps) => {
   return (
     <Paper className={classes.NotesList}>
       <Table className={classes.NotesTable}>

@@ -1,51 +1,36 @@
-import React, { Component } from "react";
+import React from "react";
 import NotesDisplay from "../NotesDisplay/NotesDisplay";
 import Notes from "../Notes/Notes";
-import MaterialUIToolbar from "../UI/MaterialUIToolBar/MaterialUIToolBar";
-import { IAppState } from "../../App";
-import { connect } from "react-redux";
-import { logoutUser } from "../../store/actions/authactions";
+import MaterialUIToolbar from "../../components/UI/NotesToolBar/NotesToolBar";
+import { IAppState } from "../../models/state/appState";
+import { useDispatch, useSelector } from "react-redux";
+import * as actions from "../../store/actions/auth/authActions";
 import { Redirect } from "@reach/router";
 
-export interface INotesPageProps {
-  path: string;
-  logout: any;
-  isAuthenticated: boolean;
-}
+const NotesPage: React.FC = () => {
+  const dispatch = useDispatch();
 
-class NotesPage extends Component<INotesPageProps> {
-  logoutHandler = () => {
-    this.props.logout();
+  const signout = async () => dispatch(await actions.signout());
+  const isAuthenticated = useSelector(
+    (state: IAppState) => state.auth.isAuthenticated
+  );
+
+  const logoutHandler = () => {
+    signout();
   };
-
-  render() {
-    let authRedirect = null;
-    if (!this.props.isAuthenticated) {
-      authRedirect = <Redirect noThrow to="/Auth" />;
-    }
-
-    return (
-      <div>
-        {authRedirect}
-        <MaterialUIToolbar logout={this.logoutHandler} />
-        <NotesDisplay />
-        <Notes />
-      </div>
-    );
+  let authRedirect = null;
+  if (!isAuthenticated) {
+    authRedirect = <Redirect noThrow to="/Auth" />;
   }
-}
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    logout: async () => dispatch(await logoutUser())
-  };
+  return (
+    <div>
+      {authRedirect}
+      <MaterialUIToolbar logout={logoutHandler} />
+      <NotesDisplay />
+      <Notes />
+    </div>
+  );
 };
 
-const mapStateToProps = (state: IAppState) => {
-  return {
-    isAuthenticated: state.auth.isAuthenticated,
-    user: state.auth.user
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(NotesPage);
+export default NotesPage;
