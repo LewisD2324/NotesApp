@@ -17,7 +17,7 @@ const composeEnhancers =
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  notes: notesreducer
+  notes: notesreducer,
 });
 
 const store: any = createStore(
